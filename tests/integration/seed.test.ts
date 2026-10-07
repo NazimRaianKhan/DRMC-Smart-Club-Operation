@@ -27,23 +27,23 @@ describe('Database Seeder', () => {
   it('Programming Contest has 60 confirmed + 14 waitlisted and confirmed_count=60', async () => {
     const progEvts = await db.select().from(schema.events).where(sql`slug = 'prog-contest'`);
     expect(progEvts.length).toBe(1);
-    const evt = progEvts[0];
+    const evt = progEvts[0]!;
     
     expect(evt.confirmedCount).toBe(60);
 
     const confirmed = await db.select({ count: sql<number>`count(*)` }).from(schema.registrations).where(sql`event_id = ${evt.id} AND status = 'confirmed'`);
-    expect(Number(confirmed[0].count)).toBe(60);
+    expect(Number(confirmed[0]!.count)).toBe(60);
 
     const waitlisted = await db.select({ count: sql<number>`count(*)` }).from(schema.registrations).where(sql`event_id = ${evt.id} AND status = 'waitlisted'`);
-    expect(Number(waitlisted[0].count)).toBe(14);
+    expect(Number(waitlisted[0]!.count)).toBe(14);
   });
 
   it('AI Web Development Contest deadline is between 30 and 40 hours from now', async () => {
     const aiEvts = await db.select().from(schema.events).where(sql`slug = 'ai-web-dev'`);
     expect(aiEvts.length).toBe(1);
-    const evt = aiEvts[0];
+    const evt = aiEvts[0]!;
 
-    const deadlineMs = evt.registrationDeadline.getTime();
+    const deadlineMs = evt.registrationDeadline!.getTime();
     const nowMs = now.getTime();
     const diffHours = (deadlineMs - nowMs) / (1000 * 60 * 60);
 
@@ -54,7 +54,7 @@ describe('Database Seeder', () => {
   it('the lab event has is_lab=true', async () => {
     const labEvts = await db.select().from(schema.events).where(sql`slug = 'concurrency-lab'`);
     expect(labEvts.length).toBe(1);
-    expect(labEvts[0].isLab).toBe(true);
+    expect(labEvts[0]!.isLab).toBe(true);
   });
 
   it('every active registration has a leader', async () => {
@@ -83,12 +83,12 @@ describe('Database Seeder', () => {
   it('seed refuses to run with NODE_ENV=production and ALLOW_SEED unset', async () => {
     const oldEnv = process.env.NODE_ENV;
     const oldAllow = process.env.ALLOW_SEED;
-    process.env.NODE_ENV = 'production';
+    Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true });
     delete process.env.ALLOW_SEED;
 
     await expect(seedDatabase({ now })).rejects.toThrow(/Seed refused to run in production/);
 
-    process.env.NODE_ENV = oldEnv;
+    Object.defineProperty(process.env, 'NODE_ENV', { value: oldEnv, writable: true });
     if (oldAllow) process.env.ALLOW_SEED = oldAllow;
   });
 });

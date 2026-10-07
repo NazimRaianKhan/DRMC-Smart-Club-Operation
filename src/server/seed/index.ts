@@ -22,7 +22,7 @@ export async function seedDatabase({ now = new Date() }: { now?: Date } = {}) {
     return Math.floor(prng() * (max - min + 1)) + min;
   }
   function randomItem<T>(arr: T[]): T {
-    return arr[randomInt(0, arr.length - 1)];
+    return arr[randomInt(0, arr.length - 1)] as T;
   }
   
   function uuid() {
@@ -98,7 +98,7 @@ export async function seedDatabase({ now = new Date() }: { now?: Date } = {}) {
       institution: 'DRMC', classLevel: '10', studentId: 'PRT-001', phone: '01700000003', preferredLang: 'en'
     });
 
-    const otherParticipants = [];
+    const otherParticipants: string[] = [];
     for (let i = 1; i <= 300; i++) {
       const pid = uuid();
       otherParticipants.push(pid);
@@ -265,7 +265,7 @@ export async function seedDatabase({ now = new Date() }: { now?: Date } = {}) {
 
     let pIndex = 0;
     function getNextParticipant() {
-      return otherParticipants[pIndex++ % otherParticipants.length];
+      return otherParticipants[pIndex++ % otherParticipants.length]!;
     }
 
     let syntheticMemberCount = 1;
@@ -334,10 +334,10 @@ export async function seedDatabase({ now = new Date() }: { now?: Date } = {}) {
       createRegistration(workshopId, getNextParticipant(), 'confirmed', false, 1, 1);
     }
     for (let i = 0; i < 18; i++) {
-      createRegistration(evtIds['quiz'], getNextParticipant(), 'confirmed', true, 2, 2);
+      createRegistration(evtIds['quiz'] as string, getNextParticipant(), 'confirmed', true, 2, 2);
     }
     for (let i = 0; i < 5; i++) {
-      createRegistration(evtIds['coding-challenge-ft'], getNextParticipant(), 'confirmed', false, 1, 1);
+      createRegistration(evtIds['coding-challenge-ft'] as string, getNextParticipant(), 'confirmed', false, 1, 1);
     }
     for (let i = 0; i < 40; i++) {
       createRegistration(pastProgId, getNextParticipant(), prng() > 0.1 ? 'checked_in' : 'confirmed', false, 1, 1);

@@ -21,17 +21,22 @@
     "loadtest": "echo \"not implemented yet\" && exit 0"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.9.1",
     "@radix-ui/react-slot": "^1.4.0",
+    "@upstash/ratelimit": "^2.2.0",
+    "@upstash/redis": "^1.39.0",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.3",
     "framer-motion": "^14.0.0",
+    "jose": "^6.2.12",
     "lucide-react": "^1.52.0",
     "next": "16.4.0",
     "next-themes": "^0.4.6",
     "pg": "^8.23.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-hook-form": "^7.89.0",
     "server-only": "^0.0.1",
     "zod": "^4.6.5"
   },

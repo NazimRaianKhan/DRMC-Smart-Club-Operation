@@ -27,5 +27,30 @@
     "aboutTitle": "About DRMC IT Club",
     "established": "Established in 1960",
     "aboutDesc": "Pioneering technology and excellence at Dhaka Residential Model College."
+  },
+  "auth": {
+    "login": "Log in",
+    "signup": "Sign up",
+    "email": "Email Address",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "fullName": "Full Name",
+    "phone": "Phone Number (Optional)",
+    "institution": "Institution (Optional)",
+    "classLevel": "Class/Level (Optional)",
+    "studentId": "Student ID (Optional)",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "creatingAccount": "Creating account...",
+    "loggingIn": "Logging in...",
+    "loginSuccess": "Successfully logged in",
+    "signupSuccess": "Account created successfully"
+  },
+  "errors": {
+    "invalidEmailPassword": "Invalid email or password",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "emailInUse": "Email is already registered",
+    "rateLimit": "Too many requests. Please try again later.",
+    "unknown": "An unknown error occurred"
   }
 }

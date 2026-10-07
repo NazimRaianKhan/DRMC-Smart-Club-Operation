@@ -12,7 +12,19 @@ export function proxy(request: NextRequest) {
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
-  if (pathnameHasLocale) return NextResponse.next();
+  const hasSession = request.cookies.has('drmc_session');
+  
+  if (pathnameHasLocale) {
+    // Fast-path redirect for protected routes
+    const isProtectedRoute = /^\/(en|bn)\/(admin|me|registrations)(\/|$)/.test(pathname);
+    if (isProtectedRoute && !hasSession) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = `/${pathname.split('/')[1]}/login`;
+      loginUrl.searchParams.set('next', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
 
   // Exclude api, _next, static files
   if (
