@@ -1,0 +1,31 @@
+{
+  "common": {
+    "motto": "Strive for Excellence",
+    "clubName": "DRMC IT Club",
+    "collegeName": "Dhaka Residential Model College",
+    "fests": "Fests",
+    "myRegistrations": "My Registrations",
+    "houseCup": "House Cup",
+    "login": "Log in / Sign up",
+    "myProfile": "My Profile",
+    "admin": "Admin",
+    "logout": "Log out"
+  },
+  "landing": {
+    "heroTitle": "Strive for Excellence",
+    "heroSubtitle": "9th DRMC International Tech Carnival 2026",
+    "browseFests": "Browse Fests",
+    "howItWorks": "How it works",
+    "step1": "Pick a fest",
+    "step2": "Choose an event",
+    "step3": "Register & get your ticket",
+    "featuresTitle": "What you can do here",
+    "feature1": "Discover Events",
+    "feature2": "Manage Team",
+    "feature3": "Track Status",
+    "feature4": "Live Updates",
+    "aboutTitle": "About DRMC IT Club",
+    "established": "Established in 1960",
+    "aboutDesc": "Pioneering technology and excellence at Dhaka Residential Model College."
+  }
+}

@@ -18,7 +18,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm start',
+    command: 'node server.js',
+    cwd: './.next/standalone',
     url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
   },

@@ -1,26 +1,62 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --surface-2: #f1f5f9;
+  --border: #e2e8f0;
+  --text: #070f26;
+  --text-muted: #475569;
+  --accent: #163a7a;
+  --accent-2: #22d3ee;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --warning: #f5b301;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --bg: #070f26;
+  --surface: #0b1f4b;
+  --surface-2: #163a7a;
+  --border: #1e3a8a;
+  --text: #ffffff;
+  --text-muted: #94a3b8;
+  --accent: #22d3ee;
+  --accent-2: #f5b301;
+  --danger: #f87171;
+  --success: #4ade80;
+  --warning: #f5b301;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-heading);
+  --font-bangla: var(--font-bangla);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  @apply font-sans;
+}
+
+/* Bangla Font Override */
+html[lang="bn"] body {
+  @apply font-bangla;
+}
+
+html[lang="bn"] h1, html[lang="bn"] h2, html[lang="bn"] h3, html[lang="bn"] h4, html[lang="bn"] h5, html[lang="bn"] h6 {
+  @apply font-bangla font-bold;
 }

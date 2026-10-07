@@ -1,4 +1,4 @@
-export default [
+const workspaceConfig = [
   {
     extends: 'vitest.config.ts',
     test: {
@@ -14,3 +14,5 @@ export default [
     },
   },
 ];
+
+export default workspaceConfig;
