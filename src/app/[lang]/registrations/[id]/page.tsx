@@ -189,7 +189,7 @@ export default async function RegistrationPage({ params }: Props) {
                 participationType={event.participationType}
                 teamMinSize={event.teamMinSize}
                 teamMaxSize={event.teamMaxSize}
-                labels={require('@/i18n/registration').registrationLabels(lang)}
+                labels={require('@/i18n/registration').getRegistrationLabels(lang)}
                 initialData={{
                   idempotencyKey: '', // Not needed for edit
                   teamName: registration.teamName || '',

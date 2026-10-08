@@ -33,7 +33,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export const instant = false;
 
+import { connection } from 'next/server';
+
 export default async function EventPage({ params }: Props) {
+  await connection();
   const { lang, slug, eventSlug } = await params;
   const dict = await getDictionary(lang);
   const event = await getCachedEventBySlug(eventSlug, lang);
