@@ -1,5 +1,5 @@
 import { requireUser } from '@/server/auth';
-import { db } from '@/db';
+import { db } from '@/db/client';
 import { registrations, events, fests, registrationMembers } from '@/db/schema';
 import { eq, inArray, sql, asc, desc } from 'drizzle-orm';
 import Link from 'next/link';
@@ -11,7 +11,6 @@ import { StatusBadge } from '@/components/directory/EventCard';
 import { getDictionary } from '@/i18n';
 import type { Metadata } from 'next';
 
-export const dynamic = 'force-dynamic';
 
 type Props = { params: Promise<{ lang: 'en' | 'bn' }> };
 

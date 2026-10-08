@@ -51,3 +51,4 @@ export function CancelRegistrationButton({ registrationId, lang }: { registratio
     </div>
   );
 }
+

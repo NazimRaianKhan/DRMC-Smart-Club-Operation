@@ -102,3 +102,4 @@ export function SecurityForm({ lang }: { lang: string }) {
     </form>
   );
 }
+

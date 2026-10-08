@@ -104,3 +104,4 @@ export function ProfileForm({ user, lang }: { user: any, lang: string }) {
     </form>
   );
 }
+

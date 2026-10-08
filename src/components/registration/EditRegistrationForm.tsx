@@ -130,3 +130,4 @@ export function EditRegistrationForm(props: EditRegistrationFormProps) {
     </form>
   );
 }
+
