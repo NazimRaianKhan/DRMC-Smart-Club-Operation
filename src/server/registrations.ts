@@ -118,3 +118,122 @@ export async function registerForEvent({ userId, eventId, input }: {
     throw error;
   }
 }
+
+export async function setRegistrationStatusInternal(
+  tx: any,
+  registration: { id: string },
+  newStatus: 'cancelled' | 'confirmed'
+) {
+  const values: any = { status: newStatus, updatedAt: sql`now()` };
+  if (newStatus === 'cancelled') {
+    values.cancelledAt = sql`now()`;
+  }
+  await tx.update(registrations).set(values).where(eq(registrations.id, registration.id));
+
+  if (newStatus === 'cancelled') {
+    await tx.update(registrationMembers).set({ isActive: false }).where(eq(registrationMembers.registrationId, registration.id));
+  }
+}
+
+export async function promoteWaitlist(tx: any, eventId: string) {
+  const [oldestWaitlisted] = await tx.select().from(registrations)
+    .where(and(eq(registrations.eventId, eventId), eq(registrations.status, 'waitlisted')))
+    .orderBy(registrations.queuedAt, registrations.id)
+    .limit(1)
+    .for('update');
+
+  if (oldestWaitlisted) {
+    await setRegistrationStatusInternal(tx, oldestWaitlisted, 'confirmed');
+    await tx.update(events).set({ confirmedCount: sql`${events.confirmedCount} + 1` }).where(eq(events.id, eventId));
+  }
+}
+
+export async function cancelRegistration({ userId, registrationId }: { userId: string, registrationId: string }) {
+  const reg = await db.query.registrations.findFirst({ where: eq(registrations.id, registrationId) });
+  if (!reg || reg.userId !== userId) return { ok: false, code: 'NOT_FOUND', message: 'Registration not found' };
+
+  return await withTransaction(async (tx) => {
+    await tx.execute(sql`SET LOCAL lock_timeout = '5s'`);
+    await tx.execute(sql`SET LOCAL statement_timeout = '10s'`);
+
+    const [lockedEvent] = await tx.select({ startsAt: events.startsAt }).from(events).where(eq(events.id, reg.eventId)).for('update');
+    if (!lockedEvent) return { ok: false, code: 'NOT_FOUND', message: 'Event not found' };
+
+    const [lockedReg] = await tx.select().from(registrations).where(eq(registrations.id, registrationId)).for('update');
+    
+    if (lockedReg.status !== 'confirmed' && lockedReg.status !== 'waitlisted') {
+      return { ok: false, code: 'INVALID_TRANSITION', message: 'Only confirmed or waitlisted registrations can be cancelled' };
+    }
+
+    const dbNowRows = await tx.execute(sql`SELECT now() as db_now`);
+    const dbNow = new Date((dbNowRows.rows[0] as any).db_now);
+    if (dbNow >= lockedEvent.startsAt) {
+      return { ok: false, code: 'INVALID_TRANSITION', message: 'Cannot cancel after event starts' };
+    }
+
+    await setRegistrationStatusInternal(tx, lockedReg, 'cancelled');
+
+    if (lockedReg.status === 'confirmed') {
+      await tx.update(events).set({ confirmedCount: sql`${events.confirmedCount} - 1` }).where(eq(events.id, reg.eventId));
+      await promoteWaitlist(tx, reg.eventId);
+    }
+
+    return { ok: true };
+  });
+}
+
+export async function editRegistration({ userId, registrationId, input }: { userId: string, registrationId: string, input: unknown }) {
+  const reg = await db.query.registrations.findFirst({
+    where: eq(registrations.id, registrationId),
+    with: { event: true, user: { columns: { email: true } } }
+  });
+  if (!reg || reg.userId !== userId) return { ok: false, code: 'NOT_FOUND', message: 'Registration not found' };
+
+  const parsed = validateRegistrationPayload(input, reg.event, reg.user.email);
+  if (!parsed.ok) return parsed;
+
+  const staffMembers = await db.select({ email: users.email }).from(users).where(and(
+    inArray(users.email, parsed.data.members.map(m => m.email)), ne(users.role, 'participant'),
+  ));
+  const staffEmails = new Set(staffMembers.map(m => m.email));
+  const staffIndex = parsed.data.members.findIndex(m => staffEmails.has(m.email));
+  if (staffIndex !== -1) return { ok: false, code: 'FORBIDDEN', reason: 'STAFF_MEMBER', message: 'Organizer and admin accounts cannot join event teams', memberIndex: staffIndex, field: `members.${staffIndex}.email` };
+
+  try {
+    return await withTransaction(async (tx) => {
+      await tx.execute(sql`SET LOCAL lock_timeout = '5s'`);
+      await tx.execute(sql`SET LOCAL statement_timeout = '10s'`);
+
+      await tx.select().from(events).where(eq(events.id, reg.eventId)).for('update');
+      const [lockedReg] = await tx.select().from(registrations).where(eq(registrations.id, registrationId)).for('update');
+
+      if (['cancelled', 'rejected'].includes(lockedReg.status)) return { ok: false, code: 'INVALID_TRANSITION', message: 'Cannot edit cancelled or rejected registration' };
+
+      await tx.update(registrations).set({ teamName: parsed.data.teamName ?? null, notes: parsed.data.notes || null, updatedAt: sql`now()` }).where(eq(registrations.id, registrationId));
+
+      const leader = parsed.data.members[0];
+      await tx.update(registrationMembers).set({
+        fullName: leader.fullName, phone: leader.phone, institution: leader.institution,
+        classLevel: leader.classLevel, studentId: leader.studentId
+      }).where(and(eq(registrationMembers.registrationId, registrationId), eq(registrationMembers.isLeader, true)));
+
+      await tx.delete(registrationMembers).where(and(eq(registrationMembers.registrationId, registrationId), eq(registrationMembers.isLeader, false)));
+
+      for (let i = 1; i < parsed.data.members.length; i++) {
+        const member = parsed.data.members[i];
+        try {
+          await tx.insert(registrationMembers).values({ ...member, registrationId, eventId: reg.eventId, isLeader: false, isActive: true });
+        } catch (error) {
+          const pg = postgresError(error);
+          if (pg.code === '23505' && pg.constraint === 'rm_event_email_active_unq') throw new MemberConflict(i);
+          throw error;
+        }
+      }
+
+      return { ok: true };
+    });
+  } catch (error) {
+    if (error instanceof MemberConflict) return { ok: false, code: 'MEMBER_ALREADY_REGISTERED', message: error.message, memberIndex: error.memberIndex };
+    throw error;
+  }
+}

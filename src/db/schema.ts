@@ -43,6 +43,7 @@ export const users = pgTable('users', {
   classLevel: text('class_level'),
   studentId: text('student_id'),
   preferredLang: text('preferred_lang').default('en').notNull(),
+  tokenVersion: integer('token_version').default(0).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
   check('email_lower_chk', sql`${table.email} = lower(${table.email})`),

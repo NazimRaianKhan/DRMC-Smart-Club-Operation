@@ -10,6 +10,8 @@ import { formatDateTime } from '@/lib/format';
 import { CheckCircle2, Clock, Calendar, MapPin, Users, Hash, User } from 'lucide-react';
 import type { Metadata } from 'next';
 import { Badge } from '@/components/ui/badge';
+import { CancelRegistrationButton } from '@/components/registration/CancelRegistrationButton';
+import { EditRegistrationForm } from '@/components/registration/EditRegistrationForm';
 
 export const instant = false;
 
@@ -49,6 +51,7 @@ export default async function RegistrationPage({ params }: Props) {
   const { event, members } = registration;
   const { fest } = event;
 
+  const isOwner = registration.userId === user.id;
   const isConfirmed = registration.status === 'confirmed' || registration.status === 'checked_in';
   const isWaitlisted = registration.status === 'waitlisted';
   const waitlistPosition = isWaitlisted ? await getWaitlistPosition(id) : null;
@@ -174,6 +177,47 @@ export default async function RegistrationPage({ params }: Props) {
           </div>
 
         </div>
+
+        {/* Management Sections */}
+        {isOwner && (isConfirmed || isWaitlisted) && (
+          <div className="mt-12 space-y-12">
+            <section className="bg-surface/50 border border-border rounded-2xl p-6 md:p-8">
+              <h2 className="text-xl font-bold mb-6 font-heading">{lang === 'bn' ? 'রেজিস্ট্রেশন পরিবর্তন করুন' : 'Edit Registration'}</h2>
+              <EditRegistrationForm
+                registrationId={id}
+                lang={lang}
+                participationType={event.participationType}
+                teamMinSize={event.teamMinSize}
+                teamMaxSize={event.teamMaxSize}
+                labels={require('@/i18n/registration').registrationLabels(lang)}
+                initialData={{
+                  idempotencyKey: '', // Not needed for edit
+                  teamName: registration.teamName || '',
+                  notes: registration.notes || '',
+                  members: members.map(m => ({
+                    fullName: m.fullName,
+                    email: m.email,
+                    phone: m.phone || '',
+                    institution: m.institution,
+                    classLevel: m.classLevel as any,
+                    studentId: m.studentId || ''
+                  }))
+                }}
+              />
+            </section>
+
+            {new Date(event.startsAt) > new Date() && (
+              <section className="bg-surface/50 border border-border rounded-2xl p-6 md:p-8">
+                <h2 className="text-xl font-bold mb-4 font-heading text-danger">{lang === 'bn' ? 'রেজিস্ট্রেশন বাতিল করুন' : 'Cancel Registration'}</h2>
+                <p className="text-text-muted mb-6">
+                  {lang === 'bn' ? 'আপনি রেজিস্ট্রেশন বাতিল করলে আপনার আসনটি ওয়েটলিস্টে থাকা অন্য কাউকে দেওয়া হবে।' : 'If you cancel, your spot will be given to the next person on the waitlist.'}
+                </p>
+                <CancelRegistrationButton registrationId={id} lang={lang} />
+              </section>
+            )}
+          </div>
+        )}
+
       </div>
     </main>
   );

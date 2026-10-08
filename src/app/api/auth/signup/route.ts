@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     if (!user) throw new Error("Failed to insert user");
 
     // Log the user in
-    const token = await signToken({ sub: user.id, role: user.role, name: user.fullName });
+    const token = await signToken({ sub: user.id, role: user.role, name: user.fullName, tv: 0 });
     
     const cookieStore = await cookies();
     cookieStore.set('drmc_session', token, {

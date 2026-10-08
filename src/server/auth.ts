@@ -13,6 +13,7 @@ export interface SessionPayload {
   sub: string;
   role: string;
   name: string;
+  tv?: number;
 }
 
 export class UnauthenticatedError extends Error {
@@ -58,10 +59,12 @@ export const getSession = cache(async (): Promise<SessionPayload | null> => {
 export const getCurrentUser = cache(async () => {
   const session = await getSession();
   if (!session) return null;
-  return await db.query.users.findFirst({
+  const user = await db.query.users.findFirst({
     where: eq(users.id, session.sub),
-    columns: { id: true, role: true, fullName: true, email: true, phone: true, institution: true, classLevel: true, studentId: true },
+    columns: { id: true, role: true, fullName: true, email: true, phone: true, institution: true, classLevel: true, studentId: true, tokenVersion: true },
   }) ?? null;
+  if (!user || (session.tv !== undefined && session.tv !== user.tokenVersion)) return null;
+  return user;
 });
 
 export async function requireUser(): Promise<SessionPayload> {

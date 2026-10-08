@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     }
 
     // Log the user in
-    const token = await signToken({ sub: user.id, role: user.role, name: user.fullName });
+    const token = await signToken({ sub: user.id, role: user.role, name: user.fullName, tv: user.tokenVersion });
     
     const cookieStore = await cookies();
     cookieStore.set('drmc_session', token, {
