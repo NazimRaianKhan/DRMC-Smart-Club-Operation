@@ -7,7 +7,6 @@ import { ProfileForm } from '@/components/profile/ProfileForm';
 import { SecurityForm } from '@/components/profile/SecurityForm';
 import type { Metadata } from 'next';
 
-export const dynamic = 'force-dynamic';
 
 type Props = { params: Promise<{ lang: 'en' | 'bn' }> };
 
