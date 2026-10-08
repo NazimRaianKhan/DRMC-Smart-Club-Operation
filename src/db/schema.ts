@@ -69,6 +69,8 @@ export const fests = pgTable('fests', {
 }, (table) => [
   check('ends_at_after_starts_at_chk', sql`${table.endsAt} > ${table.startsAt}`),
   index('fests_status_starts_at_idx').on(table.status, table.startsAt),
+  index('fests_title_trgm_idx').using('gin', sql`${table.title} gin_trgm_ops`),
+  index('fests_title_bn_trgm_idx').using('gin', sql`${table.titleBn} gin_trgm_ops`),
 ]);
 
 export const events = pgTable('events', {
@@ -115,6 +117,8 @@ export const events = pgTable('events', {
   index('events_category_idx').on(table.category),
   index('events_title_trgm_idx').using('gin', sql`${table.title} gin_trgm_ops`),
   index('events_short_desc_trgm_idx').using('gin', sql`${table.shortDescription} gin_trgm_ops`),
+  index('events_title_bn_trgm_idx').using('gin', sql`${table.titleBn} gin_trgm_ops`),
+  index('events_short_desc_bn_trgm_idx').using('gin', sql`${table.shortDescriptionBn} gin_trgm_ops`),
 ]);
 
 export const registrations = pgTable('registrations', {
@@ -175,3 +179,61 @@ export const auditLog = pgTable('audit_log', {
   index('audit_log_created_idx').on(table.createdAt.desc()),
   index('audit_log_entity_idx').on(table.entityType, table.entityId),
 ]);
+
+import { relations } from 'drizzle-orm';
+
+export const organizationsRelations = relations(organizations, ({ many }) => ({
+  fests: many(fests),
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  registrations: many(registrations),
+  auditLogs: many(auditLog),
+}));
+
+export const festsRelations = relations(fests, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [fests.organizationId],
+    references: [organizations.id],
+  }),
+  events: many(events),
+}));
+
+export const eventsRelations = relations(events, ({ one, many }) => ({
+  fest: one(fests, {
+    fields: [events.festId],
+    references: [fests.id],
+  }),
+  registrations: many(registrations),
+  members: many(registrationMembers),
+}));
+
+export const registrationsRelations = relations(registrations, ({ one, many }) => ({
+  event: one(events, {
+    fields: [registrations.eventId],
+    references: [events.id],
+  }),
+  user: one(users, {
+    fields: [registrations.userId],
+    references: [users.id],
+  }),
+  members: many(registrationMembers),
+}));
+
+export const registrationMembersRelations = relations(registrationMembers, ({ one }) => ({
+  registration: one(registrations, {
+    fields: [registrationMembers.registrationId],
+    references: [registrations.id],
+  }),
+  event: one(events, {
+    fields: [registrationMembers.eventId],
+    references: [events.id],
+  }),
+}));
+
+export const auditLogRelations = relations(auditLog, ({ one }) => ({
+  actor: one(users, {
+    fields: [auditLog.actorId],
+    references: [users.id],
+  }),
+}));

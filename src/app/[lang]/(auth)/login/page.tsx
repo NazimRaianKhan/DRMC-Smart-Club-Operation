@@ -1,6 +1,7 @@
 import { getDictionary } from "@/i18n";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
@@ -14,5 +15,9 @@ export default async function LoginPage({ params }: { params: Promise<{ lang: st
   const { lang } = await params;
   const dict = await getDictionary(lang);
 
-  return <LoginForm dict={dict} lang={lang} />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm dict={dict} lang={lang} />
+    </Suspense>
+  );
 }

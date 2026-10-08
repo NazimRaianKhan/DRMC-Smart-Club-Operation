@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { jwtVerify } from 'jose';
 
 const locales = ['en', 'bn'];
 const defaultLocale = 'en';
 
-export function proxy(request: NextRequest) {
+const getSecretKey = () => new TextEncoder().encode(process.env.AUTH_SECRET || '');
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check if pathname starts with a locale
@@ -12,17 +15,33 @@ export function proxy(request: NextRequest) {
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
-  const hasSession = request.cookies.has('drmc_session');
+  const token = request.cookies.get('drmc_session')?.value;
   
   if (pathnameHasLocale) {
-    // Fast-path redirect for protected routes
-    const isProtectedRoute = /^\/(en|bn)\/(admin|me|registrations)(\/|$)/.test(pathname);
-    if (isProtectedRoute && !hasSession) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = `/${pathname.split('/')[1]}/login`;
-      loginUrl.searchParams.set('next', pathname);
-      return NextResponse.redirect(loginUrl);
+    const match = pathname.match(/^\/(en|bn)\//);
+    const lang = match ? match[1] : 'en';
+
+    // Proxy checks authentication; server layouts/pages use the current DB role.
+    const area = pathname.split('/')[2];
+    if (area && ['admin', 'organizer', 'me', 'registrations'].includes(area)) {
+      if (!token) {
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = `/${lang}/login`;
+        loginUrl.searchParams.set('next', pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+      
+      try {
+        await jwtVerify(token, getSecretKey(), { algorithms: ['HS256'] });
+      } catch {
+        // Invalid token
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = `/${lang}/login`;
+        loginUrl.searchParams.set('next', pathname);
+        return NextResponse.redirect(loginUrl);
+      }
     }
+
     return NextResponse.next();
   }
 

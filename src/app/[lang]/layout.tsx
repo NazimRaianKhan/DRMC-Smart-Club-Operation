@@ -41,6 +41,7 @@ export async function generateStaticParams() {
 
 import { Header, Footer } from "@/components/shell/layout";
 import { ToastProvider } from "@/components/ui/toast";
+import { SpotlightCursor } from "@/components/fx/SpotlightCursor";
 
 export default async function RootLayout({
   children,
@@ -58,6 +59,7 @@ export default async function RootLayout({
     <html lang={lang} dir="ltr" suppressHydrationWarning className={`${spaceGrotesk.variable} ${inter.variable} ${notoSansBengali.variable}`}>
       <body className="antialiased min-h-screen flex flex-col bg-bg text-text">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <SpotlightCursor />
           <Header lang={lang} />
           <main className="flex-1">{children}</main>
           <Footer lang={lang} />

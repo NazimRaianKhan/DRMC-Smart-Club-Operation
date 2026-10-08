@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
 
@@ -18,9 +17,9 @@ export function LanguageSwitcher({ currentLang }: { currentLang: string }) {
 
   return (
     <Button variant="ghost" size="sm" asChild onClick={setCookie} className="font-semibold">
-      <Link href={newPath === '' ? `/${targetLang}` : newPath}>
+      <a href={newPath === '' ? `/${targetLang}` : newPath}>
         {currentLang === "en" ? "বাংলা" : "EN"}
-      </Link>
+      </a>
     </Button>
   );
 }

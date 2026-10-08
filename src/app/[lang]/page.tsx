@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Calendar, Users, Activity, Radio } from "lucide-react";
+import { HeroContent } from "./HeroContent";
+import { ParticleField } from "@/components/fx/ParticleField";
 
 export default async function LandingPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
@@ -14,25 +16,10 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
     <div className="h-[calc(100vh-4rem)] w-full overflow-y-auto snap-y snap-mandatory relative scroll-smooth hide-scrollbar">
       
       {/* Hero Section */}
-      <AnimatedSection>
-        <div className="max-w-3xl space-y-6">
-          <Badge>New in 2026</Badge>
-          <h1 className="text-5xl md:text-7xl font-bold font-heading text-accent-2 tracking-tight">
-            {t(dict, "landing.heroTitle")}
-          </h1>
-          <p className="text-xl md:text-2xl text-text-muted">
-            {t(dict, "landing.heroSubtitle")}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            <Button size="lg" asChild>
-              <Link href={`/${lang}/fests`}>{t(dict, "landing.browseFests")}</Link>
-            </Button>
-            <Button size="lg" variant="secondary" asChild>
-              <a href="#how-it-works">{t(dict, "landing.howItWorks")}</a>
-            </Button>
-          </div>
-        </div>
-      </AnimatedSection>
+      <section className="h-screen snap-start relative flex flex-col justify-center items-center w-full px-4 text-center overflow-hidden">
+        <ParticleField />
+        <HeroContent dict={dict} lang={lang} />
+      </section>
 
       {/* How it works Section */}
       <AnimatedSection id="how-it-works" className="bg-surface/50">

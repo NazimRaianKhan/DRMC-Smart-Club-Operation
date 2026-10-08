@@ -55,3 +55,14 @@ export function formatRelativeCloses(target: Date, locale: string = 'en'): strin
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
   return rtf.format(diffMinutes, 'minute');
 }
+
+export function formatParticipation(isTeam: boolean, min: number | null, max: number | null, lang: string = 'en'): string {
+  if (!isTeam) return lang === 'bn' ? 'একক' : 'Solo';
+  const minStr = formatNumber(min || 0, lang);
+  const maxStr = formatNumber(max || 0, lang);
+  return lang === 'bn' ? `দলগত (${minStr}-${maxStr} জন)` : `Team of ${minStr}–${maxStr} members`;
+}
+
+export function formatCapacityUnit(isTeam: boolean, lang: string = 'en'): string {
+  return isTeam ? (lang === 'bn' ? 'টি দল' : 'teams') : (lang === 'bn' ? 'টি আসন' : 'seats');
+}

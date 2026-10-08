@@ -1,41 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { User } from "lucide-react";
 import { Button } from "../ui/button";
 
-export function AuthMenu({ dict, lang }: { dict: Record<string, string>; lang: string }) {
-  const [hint, setHint] = useState<{ name: string; role: string } | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    // Read the non-sensitive drmc_hint cookie
-    const match = document.cookie.match(new RegExp('(^| )drmc_hint=([^;]+)'));
-    if (match?.[2]) {
-      try {
-        const decoded = decodeURIComponent(match[2]);
-        setHint(JSON.parse(decoded));
-      } catch {
-        // ignore
-      }
-    }
-  }, []);
+export function AuthMenu({ dict, lang, account }: {
+  dict: Record<string, string>; lang: string; account: { name: string; role: string } | null;
+}) {
 
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      // clear local state
-      setHint(null);
       // force reload to clear cached protected pages
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = `/${lang}`;
-    } catch (e) {
+    } catch {
       // ignore
     }
   };
 
-  if (!hint) {
+  if (!account) {
     return (
       <Button variant="primary" size="sm" asChild>
         <Link href={`/${lang}/login`}>{dict.login}</Link>
@@ -43,7 +27,7 @@ export function AuthMenu({ dict, lang }: { dict: Record<string, string>; lang: s
     );
   }
 
-  const { name, role } = hint;
+  const { name, role } = account;
 
   return (
     <div className="relative group">
@@ -53,9 +37,9 @@ export function AuthMenu({ dict, lang }: { dict: Record<string, string>; lang: s
       </Button>
       
       <div className="absolute right-0 mt-2 w-48 rounded-md border border-border bg-[var(--surface)] shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col z-50">
-        <Link href={`/${lang}/me/registrations`} className="px-4 py-2 text-sm hover:bg-[var(--surface-2)]">{dict.myRegistrations}</Link>
+        {role === 'participant' && <Link href={`/${lang}/me/registrations`} className="px-4 py-2 text-sm hover:bg-[var(--surface-2)]">{dict.myRegistrations}</Link>}
         <Link href={`/${lang}/me/profile`} className="px-4 py-2 text-sm hover:bg-[var(--surface-2)]">{dict.myProfile}</Link>
-        {(role === 'organizer' || role === 'admin') && (
+        {role === 'admin' && (
           <Link href={`/${lang}/admin`} className="px-4 py-2 text-sm hover:bg-[var(--surface-2)] border-t border-border">{dict.admin}</Link>
         )}
         <button onClick={handleLogout} className="px-4 py-2 text-sm text-left text-[var(--danger)] hover:bg-[var(--danger)]/10 border-t border-border">{dict.logout}</button>

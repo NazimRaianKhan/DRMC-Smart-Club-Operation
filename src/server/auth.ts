@@ -1,8 +1,10 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies, headers } from 'next/headers';
 import { getEnv } from '@/lib/env';
-import { redirect } from 'next/navigation';
 import { cache } from 'react';
+import { db } from '@/db/client';
+import { users } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 const env = getEnv();
 const secretKey = new TextEncoder().encode(env.AUTH_SECRET);
@@ -28,7 +30,7 @@ export class ForbiddenError extends Error {
 }
 
 export async function signToken(payload: SessionPayload): Promise<string> {
-  return new SignJWT(payload as any)
+  return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
@@ -37,9 +39,9 @@ export async function signToken(payload: SessionPayload): Promise<string> {
 
 export async function verifyToken(token: string): Promise<SessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, secretKey);
+    const { payload } = await jwtVerify(token, secretKey, { algorithms: ['HS256'] });
     return payload as unknown as SessionPayload;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -51,12 +53,23 @@ export const getSession = cache(async (): Promise<SessionPayload | null> => {
   return verifyToken(token);
 });
 
-export async function requireUser() {
+// JWT authenticates the account; current database data authorizes actions.
+// Request-scoped caching avoids repeating this query within one render.
+export const getCurrentUser = cache(async () => {
   const session = await getSession();
-  if (!session) {
+  if (!session) return null;
+  return await db.query.users.findFirst({
+    where: eq(users.id, session.sub),
+    columns: { id: true, role: true, fullName: true, email: true, phone: true, institution: true, classLevel: true, studentId: true },
+  }) ?? null;
+});
+
+export async function requireUser(): Promise<SessionPayload> {
+  const user = await getCurrentUser();
+  if (!user) {
     throw new UnauthenticatedError();
   }
-  return session;
+  return { sub: user.id, role: user.role, name: user.fullName };
 }
 
 export async function requireRole(...roles: string[]) {
@@ -84,7 +97,7 @@ export async function assertSameOrigin() {
     if (originUrl.host !== siteUrl.host && originUrl.host !== host) {
       throw new ForbiddenError('Origin mismatch');
     }
-  } catch (e) {
+  } catch {
     throw new ForbiddenError('Invalid origin');
   }
 }
