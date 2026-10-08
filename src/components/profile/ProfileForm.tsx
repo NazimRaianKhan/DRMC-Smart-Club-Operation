@@ -5,9 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input, Label, Select } from '@/components/ui/forms';
 import { classLevels } from '@/lib/validation/registration';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -81,15 +79,10 @@ export function ProfileForm({ user, lang }: { user: any, lang: string }) {
       </div>
       <div className="space-y-2">
         <Label>{lang === 'bn' ? 'শ্রেণি' : 'Class Level'}</Label>
-        <Select onValueChange={(v) => setValue('classLevel', v as any)} defaultValue={user.classLevel || '10'}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Class" />
-          </SelectTrigger>
-          <SelectContent>
-            {classLevels.map(c => (
-              <SelectItem key={c} value={c}>{c === 'other' ? 'Other' : `Class ${c}`}</SelectItem>
-            ))}
-          </SelectContent>
+        <Select {...register('classLevel')}>
+          {classLevels.map(c => (
+            <option key={c} value={c}>{c === 'other' ? 'Other' : `Class ${c}`}</option>
+          ))}
         </Select>
         {errors.classLevel && <p className="text-danger text-sm">{errors.classLevel.message}</p>}
       </div>
