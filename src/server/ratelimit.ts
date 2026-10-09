@@ -59,3 +59,5 @@ export const loginLimiter = createLimiter(10, 600); // 10 per 10 minutes
 export const signupLimiter = createLimiter(5, 3600); // 5 per hour
 export const registrationLimiter = createLimiter(20, 60); // Per account, across events
 
+
+export const aiSearchLimiter = createLimiter(10, 60);

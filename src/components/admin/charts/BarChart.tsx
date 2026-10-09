@@ -44,3 +44,4 @@ export function BarChart({ data }: { data: { date: Date, count: number }[] }) {
     </div>
   );
 }
+

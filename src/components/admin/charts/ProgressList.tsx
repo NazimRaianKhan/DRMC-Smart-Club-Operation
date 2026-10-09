@@ -39,3 +39,4 @@ export function ProgressList({ data }: { data: { label: string, count: number, t
     </div>
   );
 }
+

@@ -6,7 +6,7 @@ import { getEventState, seatsLeft } from '@/lib/event-state';
 import { unstable_cache } from 'next/cache';
 
 export async function getEventsQuery(params: EventsQueryInput, now: Date = new Date()) {
-  const { q, category, fest, state, when, sort, page, pageSize, lang } = params;
+  const { q, category, fest, state, when, dateFrom, dateTo, sort, page, pageSize, lang } = params;
 
   const conditions: SQL[] = [
     eq(events.status, 'published'),
@@ -46,6 +46,9 @@ export async function getEventsQuery(params: EventsQueryInput, now: Date = new D
   } else if (when === 'past') {
     conditions.push(sql`${events.startsAt} < ${now}`);
   }
+
+  if (dateFrom) conditions.push(sql`${events.startsAt} >= ${new Date(dateFrom)}`);
+  if (dateTo) conditions.push(sql`${events.startsAt} <= ${new Date(dateTo)}`);
 
   if (state) {
     const states = state.split(',').filter(Boolean);

@@ -8,6 +8,7 @@ const envSchema = z.object({
   GEMINI_API_KEY: z.string().optional(),
   GEMINI_MODEL: z.string().optional(),
   GROQ_API_KEY: z.string().optional(),
+  GROQ_MODEL: z.string().optional(),
   DEMO_MODE: z.enum(['true', 'false']).default('false'),
   ALLOW_SEED: z.enum(['true', 'false']).default('false'),
   NEXT_PUBLIC_SITE_URL: z.string().url(),

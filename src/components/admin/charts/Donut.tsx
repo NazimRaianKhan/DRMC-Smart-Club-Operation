@@ -67,3 +67,4 @@ export function Donut({ data }: { data: { category: string, count: number }[] })
     </div>
   );
 }
+
