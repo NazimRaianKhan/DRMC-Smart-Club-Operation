@@ -75,3 +75,8 @@ html[lang="bn"] h1, html[lang="bn"] h2, html[lang="bn"] h3, html[lang="bn"] h4, 
     display: none !important;
   }
 }
+/* Accessibility: Global Focus Rings for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

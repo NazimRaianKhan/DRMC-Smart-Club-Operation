@@ -120,6 +120,8 @@ export function RegistrationForm(props: RegistrationFormProps) {
                   ) : (
                     <input {...register(`members.${index}.${name}`)} className={inputClass}
                       type={name === 'email' ? 'email' : name === 'phone' ? 'tel' : 'text'}
+                      autoComplete={name === 'email' ? 'email' : name === 'phone' ? 'tel' : name === 'fullName' ? 'name' : 'off'}
+                      inputMode={name === 'email' ? 'email' : name === 'phone' ? 'tel' : 'text'}
                       readOnly={name === 'email' && index === 0} required={!optional}
                       maxLength={name === 'fullName' || name === 'institution' ? 80 : undefined}
                       aria-invalid={!!error} />

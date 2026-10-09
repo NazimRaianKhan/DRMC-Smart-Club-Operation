@@ -57,7 +57,7 @@ export default async function RootLayout({
 
   return (
     <html lang={lang} dir="ltr" suppressHydrationWarning className={`${spaceGrotesk.variable} ${inter.variable} ${notoSansBengali.variable}`}>
-      <body className="antialiased min-h-screen flex flex-col bg-bg text-text">
+      <body className="antialiased min-h-screen flex flex-col bg-bg text-text overflow-x-hidden">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <SpotlightCursor />
           <Header lang={lang} />
