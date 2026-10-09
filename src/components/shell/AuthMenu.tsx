@@ -39,7 +39,7 @@ export function AuthMenu({ dict, lang, account }: {
       <div className="absolute right-0 mt-2 w-48 rounded-md border border-border bg-[var(--surface)] shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col z-50">
         {role === 'participant' && <Link href={`/${lang}/me/registrations`} className="px-4 py-2 text-sm hover:bg-[var(--surface-2)]">{dict.myRegistrations}</Link>}
         <Link href={`/${lang}/me/profile`} className="px-4 py-2 text-sm hover:bg-[var(--surface-2)]">{dict.myProfile}</Link>
-        {role === 'admin' && (
+        {(role === 'admin' || role === 'organizer') && (
           <Link href={`/${lang}/admin`} className="px-4 py-2 text-sm hover:bg-[var(--surface-2)] border-t border-border">{dict.admin}</Link>
         )}
         <button onClick={handleLogout} className="px-4 py-2 text-sm text-left text-[var(--danger)] hover:bg-[var(--danger)]/10 border-t border-border">{dict.logout}</button>
