@@ -5,7 +5,7 @@ const mobile = /^(?:\+?88)?01[3-9]\d{8}$/;
 export const memberSchema = z.object({
   fullName: z.string().trim().min(2).max(80),
   email: z.string().trim().email().toLowerCase(),
-  phone: z.string().trim().regex(mobile).or(z.literal('')).optional(),
+  phone: z.string().trim().transform(v => v.replace(/[\s-]/g, '')).pipe(z.string().regex(mobile, { message: 'Invalid phone number format' }).or(z.literal(''))).optional(),
   institution: z.string().trim().min(2).max(80),
   classLevel: z.enum(classLevels),
   studentId: z.string().trim().optional(),

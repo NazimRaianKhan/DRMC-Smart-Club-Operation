@@ -37,7 +37,7 @@ export function EditRegistrationForm(props: EditRegistrationFormProps) {
     const parsed = createRegistrationSchema(props).safeParse(values);
     if (!parsed.success) {
       for (const issue of parsed.error.issues) {
-        setError(issue.path.join('.') as Parameters<typeof setError>[0], { type: 'validate', message: labels.invalidField });
+        setError(issue.path.join('.') as Parameters<typeof setError>[0], { type: 'validate', message: issue.message || labels.invalidField });
       }
       setServerError(labels.invalidForm);
       return;
@@ -87,12 +87,13 @@ export function EditRegistrationForm(props: EditRegistrationFormProps) {
         
         <label className="block space-y-2">
           <span>{lang === 'bn' ? 'হাউস (ঐচ্ছিক)' : 'House (Optional)'}</span>
-          <select {...register('houseId')} className={inputClass}>
+          <select {...register('houseId')} className={inputClass} aria-invalid={!!errors.houseId}>
             <option value="">{lang === 'bn' ? '-- নির্বাচন করুন --' : '-- Select House --'}</option>
             {houses.map(h => (
               <option key={h.id} value={h.id}>{h.name}</option>
             ))}
           </select>
+          {errors.houseId && <span className="block text-sm text-danger">{errors.houseId.message}</span>}
         </label>
         <AnimatePresence initial={false}>
           {fields.map((field, index) => (
@@ -143,4 +144,5 @@ export function EditRegistrationForm(props: EditRegistrationFormProps) {
     </form>
   );
 }
+
 
