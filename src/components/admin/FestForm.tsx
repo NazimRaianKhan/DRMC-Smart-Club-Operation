@@ -9,7 +9,7 @@ import { Input, Label, Select, Textarea } from '@/components/ui/forms';
 import { useRouter } from 'next/navigation';
 import { createFest, updateFest } from '@/server/admin';
 
-export function FestForm({ initialData, festId }: { initialData?: any, festId?: string }) {
+export function FestForm({ initialData, festId, organizations = [] }: { initialData?: any, festId?: string, organizations?: { id: string, name: string }[] }) {
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
@@ -17,7 +17,7 @@ export function FestForm({ initialData, festId }: { initialData?: any, festId?: 
   const { register, handleSubmit, formState: { errors } } = useForm<FestInput>({
     resolver: zodResolver(festSchema) as any,
     defaultValues: initialData || {
-      organizationId: '',
+      organizationId: organizations && organizations.length === 1 ? (organizations[0]?.id || '') : '',
       title: '',
       slug: '',
       tagline: '',
@@ -57,8 +57,13 @@ export function FestForm({ initialData, festId }: { initialData?: any, festId?: 
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label>Organization ID *</Label>
-          <Input {...register('organizationId')} />
+          <Label>Organization *</Label>
+          <Select {...register('organizationId')}>
+            <option value="">Select an organization...</option>
+            {organizations.map(org => (
+              <option key={org.id} value={org.id}>{org.name}</option>
+            ))}
+          </Select>
           {errors.organizationId && <p className="text-danger text-sm">{errors.organizationId.message}</p>}
         </div>
         

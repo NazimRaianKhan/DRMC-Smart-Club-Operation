@@ -26,10 +26,14 @@ export default async function EditFestPage({ params }: { params: Promise<{ lang:
     endsAt: utcToDhaka(new Date(fest.endsAt))
   };
 
+  const organizations = await db.query.organizations.findMany({
+    columns: { id: true, name: true }
+  });
+
   return (
     <div className="max-w-3xl space-y-6">
       <h1 className="text-2xl font-bold font-heading">Edit Fest</h1>
-      <FestForm initialData={initialData as any} festId={id} />
+      <FestForm initialData={initialData as any} festId={id} organizations={organizations} />
     </div>
   );
 }
