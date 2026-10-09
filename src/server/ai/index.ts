@@ -27,7 +27,7 @@ export async function generateJson({ system, user, schema }: AIRequest): Promise
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 6000); // 6 seconds timeout
       
-      const model = env.GEMINI_MODEL || 'gemini-1.5-flash';
+      const model = env.GEMINI_MODEL || 'gemini-flash-latest';
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
       
       const res = await fetch(url, {
