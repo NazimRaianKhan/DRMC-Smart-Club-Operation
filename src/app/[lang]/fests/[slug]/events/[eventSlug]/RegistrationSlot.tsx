@@ -6,6 +6,8 @@ import { formatDateTime } from '@/lib/format';
 import { classLevels, type MemberInput } from '@/lib/validation/registration';
 import { getRegistrationLabels } from '@/i18n/registration';
 
+import { db } from '@/db/client';
+
 export async function RegistrationSlot({ eventId, state, opensAt, lang, pathname, participationType, teamMinSize, teamMaxSize }: {
   eventId: string; state: string; opensAt: Date | null; lang: string; pathname: string;
   participationType: 'individual' | 'team'; teamMinSize: number; teamMaxSize: number;
@@ -32,9 +34,14 @@ export async function RegistrationSlot({ eventId, state, opensAt, lang, pathname
     fullName: user.fullName, email: user.email, phone: user.phone ?? '', institution: user.institution ?? '',
     classLevel: classLevels.find(level => level === user.classLevel) ?? '10', studentId: user.studentId ?? '',
   };
+  
+  const houses = await db.query.houses.findMany({
+    orderBy: (houses, { asc }) => [asc(houses.name)]
+  });
+
   return <div>
     <h3 className="text-xl font-bold">{labels.title}</h3>
     <RegistrationForm eventId={eventId} lang={lang} participationType={participationType}
-      teamMinSize={teamMinSize} teamMaxSize={teamMaxSize} labels={labels} leader={leader} />
+      teamMinSize={teamMinSize} teamMaxSize={teamMaxSize} labels={labels} leader={leader} houses={houses} />
   </div>;
 }

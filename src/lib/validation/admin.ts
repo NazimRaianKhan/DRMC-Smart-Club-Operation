@@ -27,6 +27,7 @@ export const eventSchema = z.object({
   shortDescriptionBn: z.string().max(160).optional().nullable(),
   descriptionBn: z.string().optional().nullable(),
   faqs: z.array(faqSchema).max(8).default([]),
+  faqsBn: z.array(faqSchema).max(8).optional().nullable(),
 }).refine(data => {
   if (data.participationType === 'team') {
     return data.teamMaxSize >= data.teamMinSize;
@@ -35,6 +36,24 @@ export const eventSchema = z.object({
 }, {
   message: "Team max size must be greater than or equal to team min size",
   path: ["teamMaxSize"],
+}).refine(data => {
+  return new Date(data.endsAt) > new Date(data.startsAt);
+}, {
+  message: "Event end time must be after start time",
+  path: ["endsAt"],
+}).refine(data => {
+  return new Date(data.registrationDeadline) <= new Date(data.startsAt);
+}, {
+  message: "Registration deadline must be before or equal to event start time",
+  path: ["registrationDeadline"],
+}).refine(data => {
+  if (data.registrationOpensAt) {
+    return new Date(data.registrationOpensAt) < new Date(data.registrationDeadline);
+  }
+  return true;
+}, {
+  message: "Registration opens time must be before deadline",
+  path: ["registrationOpensAt"],
 });
 
 export type EventInput = z.infer<typeof eventSchema>;
@@ -53,6 +72,11 @@ export const festSchema = z.object({
   titleBn: z.string().optional().nullable(),
   taglineBn: z.string().max(100).optional().nullable(),
   descriptionBn: z.string().optional().nullable(),
+}).refine(data => {
+  return new Date(data.endsAt) > new Date(data.startsAt);
+}, {
+  message: "Fest end time must be after start time",
+  path: ["endsAt"],
 });
 
 export type FestInput = z.infer<typeof festSchema>;

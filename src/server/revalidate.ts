@@ -5,9 +5,9 @@ import { revalidateTag } from "next/cache";
  * Call this after fests or events are created, updated, or deleted.
  */
 export function revalidateCatalog() {
-  // @ts-expect-error Next.js 15 type mismatch
-  revalidateTag("fests");
-  // @ts-expect-error Next.js 15 type mismatch
-  revalidateTag("events");
+  //  Next.js 15 type mismatch
+  revalidateTag("fests", 'max');
+  //  Next.js 15 type mismatch
+  revalidateTag("events", 'max');
 }
 

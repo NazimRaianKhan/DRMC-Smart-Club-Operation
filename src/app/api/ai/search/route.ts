@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     const system = `You are an AI assistant that converts natural language event search queries into structured JSON filters.
+Today's date is: ${new Date().toISOString().split('T')[0]}.
 Available categories: programming, robotics, math, science, business, arts, gaming, other.
 Available states: open, closing_soon, closed, full, waitlist, ended, not_open.
 You must return a JSON object with any of these fields (omit if not requested):

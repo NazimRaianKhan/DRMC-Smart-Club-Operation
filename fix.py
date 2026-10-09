@@ -1,0 +1,7 @@
+f=open('src/app/[lang]/admin/layout.tsx', 'r', encoding='utf-8')
+c=f.read()
+f.close()
+c=c.replace('{ href: //admin/house-cup', '{ href: \//admin/house-cup\')
+f=open('src/app/[lang]/admin/layout.tsx', 'w', encoding='utf-8')
+f.write(c)
+f.close()

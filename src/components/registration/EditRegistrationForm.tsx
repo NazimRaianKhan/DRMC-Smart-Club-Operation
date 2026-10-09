@@ -12,13 +12,14 @@ interface EditRegistrationFormProps {
   registrationId: string; lang: string; participationType: 'individual' | 'team';
   teamMinSize: number; teamMaxSize: number; labels: RegistrationLabels; 
   initialData: RegistrationInput;
+  houses: { id: string, name: string }[];
 }
 
 const blankMember = (): MemberInput => ({ fullName: '', email: '', phone: '', institution: '', classLevel: '10', studentId: '' });
 const inputClass = 'w-full min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-text focus:outline-none focus:ring-2 focus:ring-accent';
 
 export function EditRegistrationForm(props: EditRegistrationFormProps) {
-  const { registrationId, lang, participationType, teamMinSize, teamMaxSize, labels, initialData } = props;
+  const { registrationId, lang, participationType, teamMinSize, teamMaxSize, labels, initialData, houses } = props;
   const router = useRouter();
   const isTeam = participationType === 'team';
   const submitting = useRef(false);
@@ -83,6 +84,16 @@ export function EditRegistrationForm(props: EditRegistrationFormProps) {
           <input {...register('teamName')} maxLength={40} className={inputClass} aria-invalid={!!errors.teamName} />
           {errors.teamName && <span className="block text-sm text-danger">{errors.teamName.message}</span>}
         </label>}
+        
+        <label className="block space-y-2">
+          <span>{lang === 'bn' ? 'হাউস (ঐচ্ছিক)' : 'House (Optional)'}</span>
+          <select {...register('houseId')} className={inputClass}>
+            <option value="">{lang === 'bn' ? '-- নির্বাচন করুন --' : '-- Select House --'}</option>
+            {houses.map(h => (
+              <option key={h.id} value={h.id}>{h.name}</option>
+            ))}
+          </select>
+        </label>
         <AnimatePresence initial={false}>
           {fields.map((field, index) => (
             <motion.section layout key={field.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}

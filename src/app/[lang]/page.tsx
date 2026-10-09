@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Calendar, Users, Activity, Radio } from "lucide-react";
+import { Calendar, Users, Activity, Radio, Beaker } from "lucide-react";
 import { HeroContent } from "./HeroContent";
 import { ParticleField } from "@/components/fx/ParticleField";
 
@@ -76,6 +76,17 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
               <p className="text-sm text-text-muted mt-1">Real-time updates during the carnival.</p>
             </div>
           </Card>
+          <Link href={`/${lang}/lab`} className="block">
+            <Card className="p-6 flex items-start gap-4 text-left h-full hover:border-accent transition-colors">
+              <Beaker className="w-8 h-8 text-accent-2 shrink-0" />
+              <div>
+                <h3 className="text-lg font-semibold">{lang === 'bn' ? 'কনকারেন্সি ল্যাব' : 'Concurrency Lab'}</h3>
+                <p className="text-sm text-text-muted mt-1">
+                  {lang === 'bn' ? 'সিস্টেমের সক্ষমতা যাচাই করুন' : 'Test concurrent registration capabilities.'}
+                </p>
+              </div>
+            </Card>
+          </Link>
         </div>
       </AnimatedSection>
 

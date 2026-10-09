@@ -81,7 +81,7 @@ export async function registerForEvent({ userId, eventId, input }: {
       }
       // now() is transaction start time; keep FIFO even when lock acquisition order differs.
       const queuedAt = sql`greatest(now(), (SELECT max(queued_at) + interval '1 microsecond' FROM registrations WHERE event_id = ${eventId} AND status = 'waitlisted'))`;
-      const values = { status: status as 'confirmed' | 'waitlisted', teamName: data.teamName ?? null, notes: data.notes || null,
+      const values = { status: status as 'confirmed' | 'waitlisted', teamName: data.teamName ?? null, notes: data.notes || null, houseId: data.houseId || null,
         idempotencyKey: data.idempotencyKey, queuedAt, cancelledAt: null, checkedInAt: null, updatedAt: sql`now()` };
       let saved: typeof registrations.$inferSelect | undefined;
       if (existing) {
@@ -119,10 +119,13 @@ export async function registerForEvent({ userId, eventId, input }: {
   }
 }
 
+import { auditLog } from '@/db/schema';
+
 export async function setRegistrationStatusInternal(
   tx: any,
   registration: { id: string },
-  newStatus: 'cancelled' | 'confirmed'
+  newStatus: 'cancelled' | 'confirmed' | 'checked_in',
+  actorId?: string
 ) {
   const values: any = { status: newStatus, updatedAt: sql`now()` };
   if (newStatus === 'cancelled') {
@@ -132,6 +135,15 @@ export async function setRegistrationStatusInternal(
 
   if (newStatus === 'cancelled') {
     await tx.update(registrationMembers).set({ isActive: false }).where(eq(registrationMembers.registrationId, registration.id));
+  }
+
+  if (actorId && newStatus === 'checked_in') {
+    await tx.insert(auditLog).values({
+      entityType: 'registration',
+      entityId: registration.id,
+      action: 'check_in',
+      actorId: actorId
+    });
   }
 }
 
@@ -211,7 +223,7 @@ export async function editRegistration({ userId, registrationId, input }: { user
 
       if (['cancelled', 'rejected'].includes(lockedReg.status)) return { ok: false, code: 'INVALID_TRANSITION', message: 'Cannot edit cancelled or rejected registration' };
 
-      await tx.update(registrations).set({ teamName: parsed.data.teamName ?? null, notes: parsed.data.notes || null, updatedAt: sql`now()` }).where(eq(registrations.id, registrationId));
+      await tx.update(registrations).set({ teamName: parsed.data.teamName ?? null, houseId: parsed.data.houseId || null, notes: parsed.data.notes || null, updatedAt: sql`now()` }).where(eq(registrations.id, registrationId));
 
       const leader = parsed.data.members[0];
       if (leader) {

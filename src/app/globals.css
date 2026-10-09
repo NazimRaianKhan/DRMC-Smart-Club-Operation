@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root {
   --bg: #ffffff;
@@ -59,4 +59,19 @@ html[lang="bn"] body {
 
 html[lang="bn"] h1, html[lang="bn"] h2, html[lang="bn"] h3, html[lang="bn"] h4, html[lang="bn"] h5, html[lang="bn"] h6 {
   @apply font-bangla font-bold;
+}
+
+@media print {
+  body, main {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  * {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
 }

@@ -238,9 +238,9 @@ export async function adminBulkUpdateRegistrationStatus(registrationIds: string[
   // Revalidate tags (we should probably collect event IDs and revalidate those, but broadly revalidating is fine for now)
   // Let's revalidate everything related to events to be safe
   // @ts-ignore
-  revalidateTag('events');
+  revalidateTag('events', 'max');
   // @ts-ignore
-  revalidateTag('registrations');
+  revalidateTag('registrations', 'max');
   
   return { succeeded, failed };
 }

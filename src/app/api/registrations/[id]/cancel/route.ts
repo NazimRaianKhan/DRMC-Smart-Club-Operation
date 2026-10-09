@@ -17,9 +17,9 @@ export async function POST(request: Request, context: any) {
 
     if (result.ok) {
       // @ts-ignore
-      revalidateTag('events');
+      revalidateTag('events', 'max');
       // @ts-ignore
-      revalidateTag('fests');
+      revalidateTag('fests', 'max');
       return NextResponse.json(result, { status: 200, headers: { 'Cache-Control': 'no-store' } });
     }
 

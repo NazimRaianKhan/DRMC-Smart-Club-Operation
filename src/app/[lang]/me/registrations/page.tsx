@@ -11,6 +11,7 @@ import { StatusBadge } from '@/components/directory/EventCard';
 import { getDictionary } from '@/i18n';
 import type { Metadata } from 'next';
 
+export const instant = false;
 
 type Props = { params: Promise<{ lang: 'en' | 'bn' }> };
 
@@ -54,15 +55,15 @@ export default async function MyRegistrationsPage({ params }: Props) {
   const waitlistPositions: Record<string, number> = {};
   
   if (waitlistedIds.length > 0) {
-    const posQuery = await db.execute<{ id: string, position: number }>(sql`
-      SELECT target.id,
-        (SELECT count(*)::int FROM registrations r
-         WHERE r.event_id = target.event_id AND r.status = 'waitlisted'
-           AND (r.queued_at, r.id) <= (target.queued_at, target.id)) AS position
-      FROM registrations target 
-      WHERE target.id = ANY(${waitlistedIds})
-    `);
-    for (const row of posQuery.rows) {
+    const posQuery = await db.select({
+      id: registrations.id,
+      position: sql<number>`(
+        SELECT count(*)::int FROM registrations r
+        WHERE r.event_id = ${registrations.eventId} AND r.status = 'waitlisted'
+          AND (r.queued_at, r.id) <= (${registrations.queuedAt}, ${registrations.id})
+      )`
+    }).from(registrations).where(inArray(registrations.id, waitlistedIds));
+    for (const row of posQuery) {
       waitlistPositions[row.id] = row.position;
     }
   }

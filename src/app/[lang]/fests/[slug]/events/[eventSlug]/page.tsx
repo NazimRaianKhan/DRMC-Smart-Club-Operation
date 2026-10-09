@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { StatusBadge, CATEGORY_ICONS } from '@/components/directory/EventCard';
 import { AvailabilityLive } from './AvailabilityLive';
 import { RegistrationSlot } from './RegistrationSlot';
+import { EventQaAssistant } from '@/components/events/EventQaAssistant';
 import Link from 'next/link';
 import { ChevronRight, Calendar, MapPin, Users, Clock, Info } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -34,12 +35,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export const instant = false;
 
 import { connection } from 'next/server';
+import { getSession } from '@/server/auth';
 
 export default async function EventPage({ params }: Props) {
   await connection();
   const { lang, slug, eventSlug } = await params;
   const dict = await getDictionary(lang);
   const event = await getCachedEventBySlug(eventSlug, lang);
+  const session = await getSession();
 
   if (!event || event.fest.slug !== slug) {
     notFound();
@@ -265,6 +268,12 @@ export default async function EventPage({ params }: Props) {
               )}
             </div>
           </section>
+          
+          {session && event.status !== 'cancelled' && event.state !== 'ended' && (
+            <div className="flex justify-center sticky top-[600px]">
+              <EventQaAssistant eventId={event.id} lang={lang} />
+            </div>
+          )}
         </div>
       </div>
       

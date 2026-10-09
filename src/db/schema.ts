@@ -126,6 +126,7 @@ export const registrations = pgTable('registrations', {
   id: uuid('id').primaryKey().defaultRandom(),
   eventId: uuid('event_id').references(() => events.id).notNull(),
   userId: uuid('user_id').references(() => users.id).notNull(),
+    houseId: uuid('house_id').references(() => houses.id),
   status: registrationStatusEnum('status').notNull(),
   ticketCode: text('ticket_code').unique().notNull(),
   teamName: text('team_name'),
@@ -238,3 +239,29 @@ export const auditLogRelations = relations(auditLog, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const houses = pgTable('houses', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  color: text('color').notNull(),
+});
+
+export const housePoints = pgTable('house_points', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  houseId: uuid('house_id').references(() => houses.id).notNull(),
+  points: integer('points').notNull(),
+  reason: text('reason').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const housesRelations = relations(houses, ({ many }) => ({
+  points: many(housePoints),
+}));
+
+export const housePointsRelations = relations(housePoints, ({ one }) => ({
+  house: one(houses, {
+    fields: [housePoints.houseId],
+    references: [houses.id],
+  }),
+}));
+

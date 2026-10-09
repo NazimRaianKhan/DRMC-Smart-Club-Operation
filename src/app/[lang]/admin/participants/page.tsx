@@ -10,7 +10,6 @@ export const instant = false;
 
 export default async function ParticipantsPage({ searchParams, params }: { searchParams: Promise<any>, params: Promise<{ lang: string }> }) {
   const { lang } = await params;
-  await requireRole(['organizer', 'admin']);
   
   const sp = await searchParams;
   const page = parseInt(sp.page) || 1;

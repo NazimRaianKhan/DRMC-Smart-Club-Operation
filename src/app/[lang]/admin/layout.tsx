@@ -1,6 +1,6 @@
-import { requireRole } from '@/server/auth';
+import { requireRole, UnauthenticatedError, ForbiddenError } from '@/server/auth';
 import Link from 'next/link';
-import { Calendar, LayoutDashboard, Ticket, Users } from 'lucide-react';
+import { Calendar, LayoutDashboard, Ticket, Users, QrCode, Trophy } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { db } from '@/db/client';
 import { users } from '@/db/schema';
@@ -16,7 +16,15 @@ export default async function AdminLayout({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  const session = await requireRole(['organizer', 'admin']);
+  
+  let session;
+  try {
+    session = await requireRole(['organizer', 'admin']);
+  } catch (e) {
+    if (e instanceof UnauthenticatedError) redirect(`/${lang}/login`);
+    if (e instanceof ForbiddenError) redirect(`/${lang}/forbidden`);
+    throw e;
+  }
   
   const user = await db.query.users.findFirst({
     where: eq(users.id, session.sub)
@@ -31,6 +39,8 @@ export default async function AdminLayout({
     { href: `/${lang}/admin/fests`, label: 'Fests', icon: Calendar },
     { href: `/${lang}/admin/events`, label: 'Events', icon: Ticket },
     { href: `/${lang}/admin/participants`, label: 'Participants', icon: Users },
+    { href: `/${lang}/admin/check-in`, label: 'Check-in', icon: QrCode },
+    { href: `/${lang}/admin/house-cup`, label: 'House Cup', icon: Trophy }, // Scanner/Check-in
   ];
 
   return (

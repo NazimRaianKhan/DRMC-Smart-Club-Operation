@@ -48,6 +48,7 @@ export async function createEvent(data: EventInput) {
       shortDescriptionBn: parsed.shortDescriptionBn,
       descriptionBn: parsed.descriptionBn,
       faq: parsed.faqs,
+      faqBn: parsed.faqsBn,
     }).returning({ id: events.id, slug: events.slug });
     
     if (!inserted) throw new Error("Insert failed");
@@ -58,7 +59,7 @@ export async function createEvent(data: EventInput) {
   if (!newEvent) throw new Error("Insert failed");
   revalidateCatalog();
   // @ts-ignore
-  revalidateTag(`event:${newEvent.slug}`);
+  revalidateTag(`event:${newEvent.slug}`, 'max');
   return { success: true, id: newEvent.id };
 }
 
@@ -125,6 +126,7 @@ export async function updateEvent(id: string, data: EventInput) {
       shortDescriptionBn: parsed.shortDescriptionBn,
       descriptionBn: parsed.descriptionBn,
       faq: parsed.faqs,
+      faqBn: parsed.faqsBn,
       updatedAt: sql`now()`,
     }).where(eq(events.id, id));
 
@@ -139,7 +141,7 @@ export async function updateEvent(id: string, data: EventInput) {
   
   revalidateCatalog();
   // @ts-ignore
-  revalidateTag(`event:${parsed.slug}`);
+  revalidateTag(`event:${parsed.slug}`, 'max');
   return { success: true };
 }
 
@@ -189,7 +191,7 @@ export async function createFest(data: FestInput) {
   if (!newFest) throw new Error("Insert failed");
   revalidateCatalog();
   // @ts-ignore
-  revalidateTag(`fest:${newFest.slug}`);
+  revalidateTag(`fest:${newFest.slug}`, 'max');
   return { success: true, id: newFest.id };
 }
 
@@ -220,6 +222,6 @@ export async function updateFest(id: string, data: FestInput) {
   
   revalidateCatalog();
   // @ts-ignore
-  revalidateTag(`fest:${parsed.slug}`);
+  revalidateTag(`fest:${parsed.slug}`, 'max');
   return { success: true };
 }

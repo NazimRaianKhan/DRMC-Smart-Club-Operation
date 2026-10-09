@@ -11,12 +11,13 @@ import type { RegistrationLabels } from '@/i18n/registration';
 interface RegistrationFormProps {
   eventId: string; lang: string; participationType: 'individual' | 'team';
   teamMinSize: number; teamMaxSize: number; labels: RegistrationLabels; leader: MemberInput;
+  houses: { id: string, name: string }[];
 }
 const blankMember = (): MemberInput => ({ fullName: '', email: '', phone: '', institution: '', classLevel: '10', studentId: '' });
 const inputClass = 'w-full min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-text focus:outline-none focus:ring-2 focus:ring-accent';
 
 export function RegistrationForm(props: RegistrationFormProps) {
-  const { eventId, lang, participationType, teamMinSize, teamMaxSize, labels, leader } = props;
+  const { eventId, lang, participationType, teamMinSize, teamMaxSize, labels, leader, houses } = props;
   const router = useRouter();
   const isTeam = participationType === 'team';
   const key = useRef<string | null>(null);
@@ -25,7 +26,7 @@ export function RegistrationForm(props: RegistrationFormProps) {
   const [serverError, setServerError] = useState<string | null>(null);
   const { register, control, handleSubmit, setError, clearErrors, formState: { errors } } = useForm<RegistrationInput>({
     defaultValues: {
-      teamName: '', notes: '',
+      teamName: '', notes: '', houseId: '',
       members: Array.from({ length: isTeam ? teamMinSize : 1 }, (_, i) => i === 0 ? leader : blankMember()),
     },
   });
@@ -87,6 +88,16 @@ export function RegistrationForm(props: RegistrationFormProps) {
           <input {...register('teamName')} maxLength={40} className={inputClass} aria-invalid={!!errors.teamName} />
           {errors.teamName && <span className="block text-sm text-danger">{errors.teamName.message}</span>}
         </label>}
+        
+        <label className="block space-y-2">
+          <span>{lang === 'bn' ? 'হাউস (ঐচ্ছিক)' : 'House (Optional)'}</span>
+          <select {...register('houseId')} className={inputClass}>
+            <option value="">{lang === 'bn' ? '-- নির্বাচন করুন --' : '-- Select House --'}</option>
+            {houses.map(h => (
+              <option key={h.id} value={h.id}>{h.name}</option>
+            ))}
+          </select>
+        </label>
         <AnimatePresence initial={false}>
           {fields.map((field, index) => (
             <motion.section layout key={field.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}

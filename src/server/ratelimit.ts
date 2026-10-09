@@ -61,3 +61,5 @@ export const registrationLimiter = createLimiter(20, 60); // Per account, across
 
 
 export const aiSearchLimiter = createLimiter(10, 60);
+
+export const aiAskLimiter = createLimiter(5, 60);

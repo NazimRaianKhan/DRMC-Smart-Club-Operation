@@ -18,6 +18,7 @@ export interface RegistrationSettings {
 const baseSchema = z.object({
   idempotencyKey: z.string().uuid(),
   teamName: z.string().trim().min(2).max(40).optional(),
+  houseId: z.string().uuid().optional(),
   notes: z.string().trim().max(500).optional(),
   members: z.array(memberSchema).min(1).max(10),
 });

@@ -5,6 +5,7 @@ import { BarChart } from '@/components/admin/charts/BarChart';
 import { Donut } from '@/components/admin/charts/Donut';
 import { ProgressList } from '@/components/admin/charts/ProgressList';
 import { DemoResetButton } from '@/components/admin/DemoResetButton';
+import { AiInsightsCard } from '@/components/admin/AiInsightsCard';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Download } from 'lucide-react';
@@ -27,6 +28,10 @@ export default async function AdminPage({ params }: { params: Promise<{ lang: st
           </Button>
           {process.env.DEMO_MODE === 'true' && <DemoResetButton />}
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 mb-8">
+        <AiInsightsCard />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">

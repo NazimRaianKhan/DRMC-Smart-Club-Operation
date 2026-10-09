@@ -13,6 +13,9 @@ import { Badge } from '@/components/ui/badge';
 import { CancelRegistrationButton } from '@/components/registration/CancelRegistrationButton';
 import { EditRegistrationForm } from '@/components/registration/EditRegistrationForm';
 
+import { TicketActions } from '@/components/registration/TicketActions';
+import QRCode from 'qrcode';
+
 export const instant = false;
 
 type Props = { params: Promise<{ lang: 'en' | 'bn'; id: string }> };
@@ -55,6 +58,22 @@ export default async function RegistrationPage({ params }: Props) {
   const isConfirmed = registration.status === 'confirmed' || registration.status === 'checked_in';
   const isWaitlisted = registration.status === 'waitlisted';
   const waitlistPosition = isWaitlisted ? await getWaitlistPosition(id) : null;
+  
+  const houses = await db.query.houses.findMany({ orderBy: (houses, { asc }) => [asc(houses.name)] });
+
+  let qrCodeSvg = null;
+  if (isConfirmed && registration.ticketCode) {
+    try {
+      qrCodeSvg = await QRCode.toString(registration.ticketCode, {
+        type: 'svg',
+        color: { dark: '#000000', light: '#ffffff' },
+        margin: 1,
+        width: 200
+      });
+    } catch (err) {
+      console.error('Error generating QR code', err);
+    }
+  }
 
   return (
     <main className="flex-1 pb-32">
@@ -62,7 +81,7 @@ export default async function RegistrationPage({ params }: Props) {
         
         {/* Banner */}
         {isConfirmed && (
-          <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 p-6 rounded-2xl flex flex-col md:flex-row items-center md:items-start gap-4 mb-8 text-center md:text-left">
+          <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 p-6 rounded-2xl flex flex-col md:flex-row items-center md:items-start gap-4 mb-8 text-center md:text-left print:hidden">
             <CheckCircle2 className="w-12 h-12 shrink-0" />
             <div>
               <h1 className="text-2xl font-bold font-heading mb-1">
@@ -76,7 +95,7 @@ export default async function RegistrationPage({ params }: Props) {
         )}
 
         {isWaitlisted && (
-          <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 p-6 rounded-2xl flex flex-col md:flex-row items-center md:items-start gap-4 mb-8 text-center md:text-left">
+          <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 p-6 rounded-2xl flex flex-col md:flex-row items-center md:items-start gap-4 mb-8 text-center md:text-left print:hidden">
             <Clock className="w-12 h-12 shrink-0" />
             <div>
               <h1 className="text-2xl font-bold font-heading mb-1">
@@ -89,22 +108,42 @@ export default async function RegistrationPage({ params }: Props) {
           </div>
         )}
 
-        {isWaitlisted && <p className="mb-6 text-lg font-bold" data-testid="waitlist-position">
+        {isWaitlisted && <p className="mb-6 text-lg font-bold print:hidden" data-testid="waitlist-position">
           {lang === 'bn' ? 'অপেক্ষমাণ তালিকায় অবস্থান' : 'Waitlist position'}: {waitlistPosition}
         </p>}
-        {!isConfirmed && !isWaitlisted && <h1 className="mb-6 text-2xl font-bold">
+        {!isConfirmed && !isWaitlisted && <h1 className="mb-6 text-2xl font-bold print:hidden">
           {registration.status === 'cancelled' ? (lang === 'bn' ? 'রেজিস্ট্রেশন বাতিল' : 'Registration cancelled') : (lang === 'bn' ? 'রেজিস্ট্রেশন প্রত্যাখ্যাত' : 'Registration rejected')}
         </h1>}
-        <div className="bg-surface/50 border border-border rounded-2xl p-6 md:p-8 space-y-8">
+        <div className="bg-surface/50 border border-border rounded-2xl p-6 md:p-8 space-y-8 print:bg-white print:border-black print:text-black">
           
           {/* Ticket Code */}
-          <div className="text-center space-y-2 border-b border-border pb-8">
-            <p className="text-text-muted text-sm uppercase tracking-widest font-bold">
+          <div className="text-center space-y-2 border-b border-border pb-8 print:border-black">
+            <p className="text-text-muted text-sm uppercase tracking-widest font-bold print:text-black">
               {lang === 'bn' ? 'টিকিট কোড' : 'TICKET CODE'}
             </p>
-            <div className="font-mono text-3xl sm:text-5xl md:text-6xl font-black tracking-widest text-accent">
+            <div className="font-mono text-3xl sm:text-5xl md:text-6xl font-black tracking-widest text-accent print:text-black">
               {registration.ticketCode}
             </div>
+            
+            {qrCodeSvg && (
+              <div className="flex justify-center mt-6">
+                <div 
+                  className="bg-white p-2 rounded-xl inline-block"
+                  dangerouslySetInnerHTML={{ __html: qrCodeSvg }} 
+                />
+              </div>
+            )}
+            
+            {isConfirmed && (() => {
+              const formatGCalDate = (d: string | Date) => new Date(d).toISOString().replace(/-|:|\.\d+/g, "");
+              const gcalUrl = new URL('https://calendar.google.com/calendar/render');
+              gcalUrl.searchParams.set('action', 'TEMPLATE');
+              gcalUrl.searchParams.set('text', event.title);
+              gcalUrl.searchParams.set('dates', `${formatGCalDate(event.startsAt)}/${formatGCalDate(event.endsAt)}`);
+              if (event.venue) gcalUrl.searchParams.set('location', event.venue);
+              
+              return <TicketActions lang={lang} calendarUrl={gcalUrl.toString()} />;
+            })()}
           </div>
 
           {/* Event Summary */}
@@ -180,7 +219,7 @@ export default async function RegistrationPage({ params }: Props) {
 
         {/* Management Sections */}
         {isOwner && (isConfirmed || isWaitlisted) && (
-          <div className="mt-12 space-y-12">
+          <div className="mt-12 space-y-12 print:hidden">
             <section className="bg-surface/50 border border-border rounded-2xl p-6 md:p-8">
               <h2 className="text-xl font-bold mb-6 font-heading">{lang === 'bn' ? 'রেজিস্ট্রেশন পরিবর্তন করুন' : 'Edit Registration'}</h2>
               <EditRegistrationForm
@@ -193,6 +232,7 @@ export default async function RegistrationPage({ params }: Props) {
                 initialData={{
                   idempotencyKey: '', // Not needed for edit
                   teamName: registration.teamName || '',
+                  houseId: registration.houseId || '',
                   notes: registration.notes || '',
                   members: members.map(m => ({
                     fullName: m.fullName,
@@ -203,6 +243,7 @@ export default async function RegistrationPage({ params }: Props) {
                     studentId: m.studentId || ''
                   }))
                 }}
+                houses={houses}
               />
             </section>
 

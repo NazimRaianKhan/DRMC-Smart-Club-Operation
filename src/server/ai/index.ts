@@ -25,7 +25,7 @@ export async function generateJson({ system, user, schema }: AIRequest): Promise
   if (env.GEMINI_API_KEY) {
     try {
       const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), 6000); // 6 seconds timeout
+      const id = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
       
       const model = env.GEMINI_MODEL || 'gemini-flash-latest';
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
@@ -51,16 +51,14 @@ export async function generateJson({ system, user, schema }: AIRequest): Promise
           try {
             return { ok: true, data: JSON.parse(text) };
           } catch (e) {
-            // Invalid JSON
+            console.error("Gemini invalid JSON:", text);
           }
         }
-      } else if (res.status !== 429 && res.status < 500) {
-        // Not a transient error (e.g., 400 Bad Request, 401 Unauthorized), we might want to fail fast or just let it fallback
-        // The prompt says: "If Gemini returns 429, 5xx, or times out, catch the error and execute the exact same prompt against the Groq REST API".
-        // It implies other errors might not fallback, but for simplicity let's just fallback on any error.
+      } else {
+        console.error("Gemini failed:", res.status, await res.text());
       }
     } catch (e) {
-      // Timeout or network error
+      console.error("Gemini network error/timeout:", e);
     }
   }
 
@@ -68,7 +66,7 @@ export async function generateJson({ system, user, schema }: AIRequest): Promise
   if (env.GROQ_API_KEY) {
     try {
       const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), 6000);
+      const id = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
       
       const model = env.GROQ_MODEL || 'llama3-8b-8192';
       const url = `https://api.groq.com/openai/v1/chat/completions`;
@@ -82,7 +80,7 @@ export async function generateJson({ system, user, schema }: AIRequest): Promise
         body: JSON.stringify({
           model: model,
           messages: [
-            { role: 'system', content: system },
+            { role: 'system', content: system + '\nEnsure output is strictly JSON.' },
             { role: 'user', content: user }
           ],
           response_format: { type: 'json_object' }
@@ -98,12 +96,14 @@ export async function generateJson({ system, user, schema }: AIRequest): Promise
           try {
             return { ok: true, data: JSON.parse(text) };
           } catch (e) {
-            // Invalid JSON
+            console.error("Groq invalid JSON:", text);
           }
         }
+      } else {
+        console.error("Groq failed:", res.status, await res.text());
       }
     } catch (e) {
-      // Timeout or network error
+      console.error("Groq network error/timeout:", e);
     }
   }
 
