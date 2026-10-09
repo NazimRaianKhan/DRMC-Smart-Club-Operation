@@ -1,6 +1,7 @@
 import { getDictionary } from "@/i18n";
 import { getPublishedFests } from "@/server/queries/fests";
 import { getEventsQuery } from "@/server/queries/events";
+import { getSession } from "@/server/auth";
 import { FestCard } from "@/components/directory/FestCard";
 import { EventBrowser } from "@/components/directory/EventBrowser";
 import { Suspense } from "react";
@@ -27,6 +28,7 @@ export default async function FestsDirectoryPage(props: Props) {
     getEventsQuery({ page: 1, pageSize: 12, when: "upcoming", sort: "soonest", lang }),
   ]);
   const nowMs = Date.now();
+  const session = await getSession();
 
   return (
     <main className="flex-1">
@@ -67,6 +69,7 @@ export default async function FestsDirectoryPage(props: Props) {
               dict={dict.directory} 
               initialData={initialData}
               fests={fests}
+              isLoggedIn={!!session}
             />
           </Suspense>
         </div>

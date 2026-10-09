@@ -109,3 +109,4 @@ export async function generateJson({ system, user, schema }: AIRequest): Promise
 
   return { ok: false, code: "AI_UNAVAILABLE" };
 }
+

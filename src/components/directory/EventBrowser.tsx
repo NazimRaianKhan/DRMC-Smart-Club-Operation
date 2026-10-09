@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Search, X, Sparkles } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 
-export function EventBrowser({ initialData, dict, lang, fests }: { initialData: any, dict: any, lang: string, fests: { slug: string, title: string }[] }) {
+export function EventBrowser({ initialData, dict, lang, fests, isLoggedIn }: { initialData: any, dict: any, lang: string, fests: { slug: string, title: string }[], isLoggedIn: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -170,14 +170,16 @@ export function EventBrowser({ initialData, dict, lang, fests }: { initialData: 
       {/* Search & Filters */}
       <div className="bg-surface p-6 rounded-2xl border border-border shadow-sm space-y-6">
         <div className="flex flex-col md:flex-row gap-4 items-center">
-          <button 
-            type="button"
-            onClick={() => setIsAiMode(!isAiMode)}
-            className={`shrink-0 flex items-center gap-2 px-4 h-10 rounded-full font-medium transition-colors border ${isAiMode ? 'bg-indigo-600 text-white border-indigo-600 shadow-[0_0_15px_rgba(79,70,229,0.5)]' : 'bg-surface hover:bg-surface-2 border-border'}`}
-          >
-            <Sparkles className="w-4 h-4" />
-            {isAiMode ? "AI Mode: ON" : "Ask AI"}
-          </button>
+          {isLoggedIn && (
+            <button 
+              type="button"
+              onClick={() => setIsAiMode(!isAiMode)}
+              className={`shrink-0 flex items-center gap-2 px-4 h-10 rounded-full font-medium transition-colors border ${isAiMode ? 'bg-indigo-600 text-white border-indigo-600 shadow-[0_0_15px_rgba(79,70,229,0.5)]' : 'bg-surface hover:bg-surface-2 border-border'}`}
+            >
+              <Sparkles className="w-4 h-4" />
+              {isAiMode ? "AI Mode: ON" : "Ask AI"}
+            </button>
+          )}
 
           <form onSubmit={handleAiSubmit} className="relative flex-1 w-full">
             <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />

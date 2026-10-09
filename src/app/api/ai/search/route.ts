@@ -5,6 +5,7 @@ import { getEventsQuery } from '@/server/queries/events';
 import { eventsQuerySchema } from '@/lib/validations/events';
 
 export const instant = false;
+import { getSession } from '@/server/auth';
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,6 +17,9 @@ export async function POST(req: NextRequest) {
 
     const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
     const limit = await aiSearchLimiter.limit(`ai_search:${ip}`);
+    const session = await getSession();
+    if (!session) return NextResponse.json({ ok: false, code: 'UNAUTHORIZED' }, { status: 401 });
+
     if (!limit.success) {
       return NextResponse.json({ ok: false, code: 'TOO_MANY_REQUESTS' }, { status: 429 });
     }
