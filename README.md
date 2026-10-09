@@ -1,119 +1,131 @@
 # 1. DRMC Tech Carnival Platform
 
-![CI](https://github.com/organization/drmc-tech-carnival/actions/workflows/ci.yml/badge.svg)
-![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
-![Demo](https://img.shields.io/badge/Live-Demo-success)
+![CI Status](https://github.com/NazimRaianKhan/DRMC-Smart-Club-Operation/actions/workflows/ci.yml/badge.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)
+![Live Demo](https://img.shields.io/badge/Live_Demo-Online-success?style=flat-square)
 
-# 2. Project description
-The DRMC Tech Carnival Platform is a comprehensive, multi-lingual (English and Bengali) event management system built specifically for handling the 9th DRMC International Tech Carnival 2026. It solves the problem of organizing complex technology festivals by providing a structured, hierarchical management system and robust registration logic to prevent overselling.
+## 2. Project description
 
-The core data hierarchy follows:
-**Organization -> Fest -> Event -> Registration**
-- **Organization**: The top-level entity managing the platform.
-- **Fest**: A specific festival (e.g., 9th DRMC Tech Carnival).
-- **Event**: Individual competitions or workshops within a fest (e.g., Web Development, Programming Contest).
-- **Registration**: Participant or team enrollments for specific events.
+The DRMC Tech Carnival Platform is an enterprise-grade, internationalized event management ecosystem engineered to streamline the orchestration of the 9th DRMC International Tech Carnival 2026. This platform resolves the administrative and technical bottlenecks traditionally associated with large-scale technology festivals by providing a robust, highly scalable infrastructure capable of processing high-volume concurrent registrations without data anomalies.
 
-# 3. Features
-- **Directory**: Public-facing fest and event directories with full bilingual support.
-- **Registration**: Robust registration system with waitlisting, team support, strict capacity enforcement, direct Google Calendar integration, and printable QR code tickets.
-- **Organizer tools**: Admin dashboard for managing fests, events, participant data exports (CSV), and an on-site QR scanner / manual check-in system.
-- **AI features**: AI-assisted event drafting, automatic Bengali translation, AI-powered semantic search, Admin AI insights/analytics, and a public Q&A assistant for events.
-- **Concurrency Lab**: A visual testing environment (`/lab`) proving that the database handles hundreds of simultaneous registrations perfectly without overselling.
-- **House Cup Leaderboard**: Gamified system tracking points across DRMC Houses (`/house-cup`).
+The system enforces a strict hierarchical data architecture to maintain organizational integrity:
+- **Organization**: The apex administrative body overseeing the platform's operations.
+- **Fest**: A distinct, overarching festival entity (e.g., the 9th DRMC Tech Carnival).
+- **Event**: Individualized competitions, workshops, or seminars hosted under the umbrella of a Fest.
+- **Registration**: Granular records of individual or team enrollments, strictly bound by transactional capacity constraints.
 
-# 4. Tech Stack
-- **Framework**: Next.js 16 (App Router, Server Actions)
-- **Styling**: Tailwind CSS v4, Framer Motion
-- **Database**: Neon Serverless Postgres
-- **ORM**: Drizzle ORM
-- **Caching & Rate Limiting**: Upstash Redis
-- **AI/LLM**: Google Gemini / Groq
+## 3. Features
 
-# 5. Setup instructions
-**Prerequisites:**
-- Node.js 22+
-- pnpm 9+
-- A Neon Postgres database URL
-- An Upstash Redis REST URL and Token
-- A Gemini API Key and/or Groq API Key
+- **Centralized Directory**: Public-facing, fully localized (English and Bengali) directories facilitating the discovery of Fests and affiliated Events.
+- **Transactional Registration System**: A resilient registration engine featuring automated waitlist provisioning, dynamic team formation, strict capacity enforcement, native Google Calendar integration, and cryptographic QR code generation for verifiable ticketing.
+- **Organizer Tooling**: A comprehensive administrative dashboard empowering organizers to manage event lifecycles, execute bulk data exports (CSV format), and operate an on-site hardware-agnostic QR scanning interface for attendee check-ins.
+- **Artificial Intelligence Integration**: A suite of LLM-powered utilities, including automated drafting of event specifications, native semantic translation to Bengali, natural language event discovery (AI Search), aggregate administrative insights, and a public-facing conversational Q&A assistant for user inquiries.
+- **Concurrency Laboratory**: A dedicated, interactive testing environment (`/lab`) designed to mathematically prove the system's resilience by processing hundreds of simultaneous, heavily concurrent registration transactions without overselling capacity.
+- **House Cup Leaderboard**: A gamified, real-time leaderboard tracking cumulative institutional points allocated to DRMC Houses based on administrative metrics and participant performance.
 
-**Installation:**
+## 4. Tech Stack
+
+- **Application Framework**: Next.js 16 (App Router paradigm, Server Actions)
+- **Styling and Animation**: Tailwind CSS v4, Framer Motion
+- **Relational Database**: Neon Serverless PostgreSQL
+- **Object-Relational Mapping (ORM)**: Drizzle ORM
+- **Language Models**: Google Gemini & Groq API
+
+## 5. Setup instructions
+
+### Prerequisites
+- Node.js (Version 22.0.0 or higher)
+- pnpm package manager (Version 9.0.0 or higher)
+- A PostgreSQL database connection URI (e.g., Neon)
+- Active API keys for Google Gemini and Groq
+
+### Installation
+Clone the repository and install dependencies:
 ```bash
-git clone https://github.com/organization/drmc-tech-carnival.git
-cd drmc-tech-carnival
-pnpm install
+git clone https://github.com/NazimRaianKhan/DRMC-Smart-Club-Operation.git
+cd DRMC-Smart-Club-Operation
+pnpm install --frozen-lockfile
 ```
 
-**Environment Variables:**
-Create a `.env.local` file based on `.env.example`:
+### Environment Configuration
+Copy the sample environment file and populate it with production credentials:
+```bash
+cp .env.example .env.local
+```
+Ensure the following variables are defined within `.env.local`:
 ```env
-DATABASE_URL="postgres://user:password@hostname/dbname"
-UPSTASH_REDIS_REST_URL="https://..."
-UPSTASH_REDIS_REST_TOKEN="..."
-AUTH_SECRET="your-32-char-secret"
-GEMINI_API_KEY="your-gemini-key"
+DATABASE_URL="postgresql://user:password@hostname/dbname?sslmode=require"
+AUTH_SECRET="your-cryptographically-secure-32-char-secret"
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+GEMINI_API_KEY="your-gemini-api-key"
+GEMINI_MODEL="gemini-flash-latest"
+GROQ_API_KEY="your-groq-api-key"
+GROQ_MODEL="qwen/qwen3.8-27b"
+DEMO_MODE=true
 ```
 
-**Database Setup:**
+### Database Initialization
+Generate the schema, apply migrations, and execute the production seeder:
 ```bash
 pnpm run db:generate
 pnpm run db:migrate
 pnpm run db:seed
 ```
 
-**Run Development Server:**
+### Execution
+Initiate the local development server:
 ```bash
 pnpm dev
 ```
 
-# 6. Deployment URL
-The application is deployed on Vercel:
-**[https://drmc-tech-carnival.vercel.app](https://drmc-tech-carnival.vercel.app)** *(Replace with actual URL once deployed)*
+## 6. Deployment URL
 
-**Vercel Deployment Instructions:**
-1. Connect the GitHub repository to Vercel.
-2. Add all environment variables from `.env.example` to the Vercel project settings.
-3. Set `DEMO_MODE=true` in Vercel to allow seamless testing.
-4. The build command (`next build`) and output directory (`.next`) are automatically configured by Vercel.
+The production application is actively hosted and served via the Vercel Edge Network:
+**[https://drmc-smart-club-operation.vercel.app](https://drmc-smart-club-operation.vercel.app)**
 
-# 7. Demo credentials
-The database seeder provisions the following accounts for testing:
-- **Admin**: `admin@example.com` | Password: `password`
-- **Organizer**: `organizer@example.com` | Password: `password`
-- **Participant**: `participant@example.com` | Password: `password`
+## 7. Demo credentials
 
-# 8. Third-party services/APIs
-- **Vercel**: Hosting, Edge Network, and CI/CD Pipeline.
-- **Neon**: Serverless PostgreSQL database.
-- **Upstash**: Serverless Redis for rate-limiting and caching.
-- **Google Gemini / Groq**: Large Language Models powering the AI features.
+The database seeder automatically provisions the following standardized accounts to facilitate immediate evaluation of administrative and user-level interfaces:
 
-# 9. AI tools/features used
-**Development Assistant:**
-- Google Antigravity (Advanced Agentic Coding AI) was used extensively to plan, architect, implement, and debug the codebase throughout the hackathon.
+- **Administrator**: `admin@drmc-demo.test` | Password: `Admin@12345`
+- **Organizer**: `organizer@drmc-demo.test` | Password: `Organizer@12345`
+- **Participant**: `participant@drmc-demo.test` | Password: `Participant@12345`
 
-**Product AI Features:**
-- **AI Event Drafting**: Organizers can generate event descriptions from brief prompts.
-- **AI Translation**: Automatic generation of Bengali translations for events and fests.
-- **AI Search**: Semantic search allowing users to find events by querying natural language concepts.
-- **AI Insights**: Dashboard widget generating analytical insights on registration data.
-- **Event Q&A Assistant**: Public chatbot on event pages answering user questions based strictly on the event's context and FAQs.
+## 8. Third-party services/APIs
 
-*Privacy Note: No personal user data (names, emails, student IDs, etc.) is ever sent to the AI models. All AI features rely solely on public event metadata or aggregated anonymous statistics.*
+- **Vercel**: Provides the underlying infrastructure for hosting, Edge Network distribution, and automated CI/CD pipelines.
+- **Neon**: Supplies the serverless PostgreSQL database architecture.
+- **Google Gemini & Groq**: Delivers the Large Language Models required to facilitate the platform's generative AI and semantic analysis features.
 
-# 10. Screenshots
-*Replace with actual image links after deployment*
-- [Desktop Landing Page](#)
-- [Event Registration Flow](#)
-- [Admin Dashboard & Insights](#)
-- [QR Scanner Check-in](#)
-- [Concurrency Lab Visualization](#)
+## 9. AI tools/features used
 
-# 11. Known limitations
-- **Neon Cold Starts**: The first database request after a period of inactivity may experience a slight delay (typically <1s) due to serverless scale-to-zero.
-- **Free-Tier AI Limits**: AI features may hit rate limits if too many users attempt to draft events or use the Q&A assistant simultaneously on the free-tier Gemini/Groq keys.
-- **Single Organization**: The platform is currently optimized for a single organizing body (e.g., DRMC IT Club). Multi-tenant organization support is not fully implemented.
+### Development Disclosure
+The development of this platform was heavily augmented by **Google Antigravity** (Advanced Agentic Coding AI). This coding assistant was utilized for architectural planning, code generation, and iterative debugging throughout the hackathon lifecycle.
 
-# 12. License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### Product Features
+- **AI Event Drafting**: Organizers may supply rudimentary prompts to programmatically generate comprehensive event documentation.
+- **AI Localization**: Automated, context-aware semantic translation of event metadata into Bengali.
+- **Semantic Search**: Users may query the directory using natural language, leveraging embeddings to retrieve conceptually relevant events.
+- **Administrative Insights**: The dashboard consumes aggregated registration metrics to output strategic, data-driven recommendations for organizers.
+- **Public Q&A Assistant**: A stateless chatbot embedded on event pages, strictly instructed to answer user queries using only the provided event metadata and FAQs.
+
+*Privacy and Compliance: The platform enforces strict data boundaries. No personally identifiable information (PII) such as user names, emails, or student IDs is transmitted to external AI models. Generative features operate exclusively on public event metadata or highly anonymized statistical aggregates.*
+
+## 10. Screenshots
+
+*(Screenshots to be added here prior to final submission)*
+- [Desktop Landing Interface](#)
+- [Registration Transaction Flow](#)
+- [Administrative Dashboard and AI Insights](#)
+- [Hardware-Agnostic QR Check-in Module](#)
+- [Concurrency Laboratory Visualization Grid](#)
+
+## 11. Known limitations
+
+- **Neon Infrastructure Cold Starts**: Due to the scale-to-zero nature of serverless PostgreSQL, the initial database transaction following a prolonged period of inactivity may incur a minor latency penalty (typically <1000ms).
+- **Provider API Quotas**: Iterative use of generative AI utilities (e.g., the Public Q&A Assistant or Event Drafting) may briefly encounter `429 Too Many Requests` responses if global throughput exceeds the constraints of the free-tier Gemini/Groq API keys.
+- **Single-Tenant Architecture**: The system logic is currently optimized for a monolithic organizational structure (i.e., the DRMC IT Club). True multi-tenant organizational segregation is not fully supported in this iteration.
+
+## 12. License
+
+This project is licensed under the MIT License.
