@@ -16,7 +16,7 @@ interface EditRegistrationFormProps {
 }
 
 const blankMember = (): MemberInput => ({ fullName: '', email: '', phone: '', institution: '', classLevel: '10', studentId: '' });
-const inputClass = 'w-full min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-text focus:outline-none focus:ring-2 focus:ring-accent';
+const inputClass = 'w-full min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-text focus:outline-none focus:ring-2 focus:ring-accent aria-invalid:border-danger aria-invalid:ring-danger/20';
 
 export function EditRegistrationForm(props: EditRegistrationFormProps) {
   const { registrationId, lang, participationType, teamMinSize, teamMaxSize, labels, initialData, houses } = props;
