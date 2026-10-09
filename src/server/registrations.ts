@@ -160,6 +160,7 @@ export async function cancelRegistration({ userId, registrationId }: { userId: s
     if (!lockedEvent) return { ok: false, code: 'NOT_FOUND', message: 'Event not found' };
 
     const [lockedReg] = await tx.select().from(registrations).where(eq(registrations.id, registrationId)).for('update');
+    if (!lockedReg) return { ok: false, code: 'NOT_FOUND', message: 'Registration not found' };
     
     if (lockedReg.status !== 'confirmed' && lockedReg.status !== 'waitlisted') {
       return { ok: false, code: 'INVALID_TRANSITION', message: 'Only confirmed or waitlisted registrations can be cancelled' };
@@ -206,23 +207,27 @@ export async function editRegistration({ userId, registrationId, input }: { user
 
       await tx.select().from(events).where(eq(events.id, reg.eventId)).for('update');
       const [lockedReg] = await tx.select().from(registrations).where(eq(registrations.id, registrationId)).for('update');
+      if (!lockedReg) return { ok: false, code: 'NOT_FOUND', message: 'Registration not found' };
 
       if (['cancelled', 'rejected'].includes(lockedReg.status)) return { ok: false, code: 'INVALID_TRANSITION', message: 'Cannot edit cancelled or rejected registration' };
 
       await tx.update(registrations).set({ teamName: parsed.data.teamName ?? null, notes: parsed.data.notes || null, updatedAt: sql`now()` }).where(eq(registrations.id, registrationId));
 
       const leader = parsed.data.members[0];
-      await tx.update(registrationMembers).set({
-        fullName: leader.fullName, phone: leader.phone, institution: leader.institution,
-        classLevel: leader.classLevel, studentId: leader.studentId
-      }).where(and(eq(registrationMembers.registrationId, registrationId), eq(registrationMembers.isLeader, true)));
+      if (leader) {
+        await tx.update(registrationMembers).set({
+          fullName: leader.fullName, phone: leader.phone, institution: leader.institution,
+          classLevel: leader.classLevel, studentId: leader.studentId
+        }).where(and(eq(registrationMembers.registrationId, registrationId), eq(registrationMembers.isLeader, true)));
+      }
 
       await tx.delete(registrationMembers).where(and(eq(registrationMembers.registrationId, registrationId), eq(registrationMembers.isLeader, false)));
 
       for (let i = 1; i < parsed.data.members.length; i++) {
         const member = parsed.data.members[i];
+        if (!member) continue;
         try {
-          await tx.insert(registrationMembers).values({ ...member, registrationId, eventId: reg.eventId, isLeader: false, isActive: true });
+          await tx.insert(registrationMembers).values({ ...member, email: member.email!, registrationId, eventId: reg.eventId, isLeader: false, isActive: true });
         } catch (error) {
           const pg = postgresError(error);
           if (pg.code === '23505' && pg.constraint === 'rm_event_email_active_unq') throw new MemberConflict(i);

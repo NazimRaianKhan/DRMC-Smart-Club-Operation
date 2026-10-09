@@ -1,11 +1,12 @@
 import { requireRole } from '@/server/auth';
 import Link from 'next/link';
 import { Calendar, LayoutDashboard, Ticket, Users } from 'lucide-react';
-import { UserButton } from '@/components/auth/UserButton';
 import { redirect } from 'next/navigation';
 import { db } from '@/db/client';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+
+export const instant = false;
 
 export default async function AdminLayout({
   children,
@@ -54,7 +55,11 @@ export default async function AdminLayout({
         <header className="h-16 bg-surface/30 border-b border-border px-6 flex items-center justify-end sticky top-0 backdrop-blur-md z-10">
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium">{user.fullName}</span>
-            <UserButton user={{ fullName: user.fullName, email: user.email }} lang={lang} />
+            <form action="/api/auth/logout" method="POST">
+              <button type="submit" className="text-sm font-medium text-destructive hover:underline">
+                Log out
+              </button>
+            </form>
           </div>
         </header>
         

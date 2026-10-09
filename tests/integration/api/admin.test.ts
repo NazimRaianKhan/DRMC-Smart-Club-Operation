@@ -16,7 +16,7 @@ describe('Admin Business Rules', () => {
 
   beforeAll(async () => {
     adminUser = await db.insert(users).values({ email: `admin-${randomUUID()}@test.com`, passwordHash: 'hash', fullName: 'Admin', role: 'admin' }).returning().then(r => r[0]);
-    const [org] = await db.insert(organizations).values({ name: 'Org', slug: `org-${randomUUID()}` }).returning();
+    const org = await db.insert(organizations).values({ name: 'Org', slug: `org-${randomUUID()}` }).returning().then(r => r[0]!);
     testFest = await db.insert(fests).values({
       organizationId: org.id, title: 'Fest', slug: `fest-${randomUUID()}`, tagline: 'Tag', description: 'Desc', startsAt: new Date(), endsAt: new Date(Date.now() + 100000), venue: 'Venue'
     }).returning().then(r => r[0]);
@@ -55,10 +55,10 @@ describe('Admin Business Rules', () => {
 
   it('capacity increase promotes exactly the right number from waitlist', async () => {
     // Register 3 users (capacity is 2, so 2 confirmed, 1 waitlisted)
-    const user2 = await db.insert(users).values({ email: `u2-${randomUUID()}@test.com`, passwordHash: 'hash', fullName: 'U2', role: 'participant' }).returning().then(r => r[0]);
-    const user3 = await db.insert(users).values({ email: `u3-${randomUUID()}@test.com`, passwordHash: 'hash', fullName: 'U3', role: 'participant' }).returning().then(r => r[0]);
-    const user4 = await db.insert(users).values({ email: `u4-${randomUUID()}@test.com`, passwordHash: 'hash', fullName: 'U4', role: 'participant' }).returning().then(r => r[0]);
-    const user5 = await db.insert(users).values({ email: `u5-${randomUUID()}@test.com`, passwordHash: 'hash', fullName: 'U5', role: 'participant' }).returning().then(r => r[0]);
+    const user2 = await db.insert(users).values({ email: `u2-${randomUUID()}@test.com`, passwordHash: 'hash', fullName: 'U2', role: 'participant' }).returning().then(r => r[0]!);
+    const user3 = await db.insert(users).values({ email: `u3-${randomUUID()}@test.com`, passwordHash: 'hash', fullName: 'U3', role: 'participant' }).returning().then(r => r[0]!);
+    const user4 = await db.insert(users).values({ email: `u4-${randomUUID()}@test.com`, passwordHash: 'hash', fullName: 'U4', role: 'participant' }).returning().then(r => r[0]!);
+    const user5 = await db.insert(users).values({ email: `u5-${randomUUID()}@test.com`, passwordHash: 'hash', fullName: 'U5', role: 'participant' }).returning().then(r => r[0]!);
 
     const res2 = await registerForEvent({ userId: user2.id, eventId: testEvent.id, requestId: randomUUID(), input: { idempotencyKey: randomUUID(), members: [{ fullName: 'U2', email: user2.email, phone: '01711223344', institution: 'Inst', classLevel: '10' }] } });
     if (!res2.ok) console.log(res2);

@@ -15,7 +15,7 @@ export function EventForm({ initialData, eventId, fests }: { initialData?: any, 
   const [pending, setPending] = useState(false);
   
   const { register, control, handleSubmit, watch, formState: { errors } } = useForm<EventInput>({
-    resolver: zodResolver(eventSchema),
+    resolver: zodResolver(eventSchema) as any,
     defaultValues: initialData || {
       festId: fests[0]?.id || '',
       title: '',
@@ -73,7 +73,7 @@ export function EventForm({ initialData, eventId, fests }: { initialData?: any, 
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-surface p-6 rounded-xl border border-border">
+    <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-6 bg-surface p-6 rounded-xl border border-border">
       {error && <div className="p-4 bg-danger/10 text-danger rounded-lg">{error}</div>}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -200,7 +200,7 @@ export function EventForm({ initialData, eventId, fests }: { initialData?: any, 
         <div className="flex justify-between items-center">
           <Label className="text-lg">FAQs</Label>
           {fields.length < 8 && (
-            <Button type="button" variant="outline" size="sm" onClick={() => append({ q: '', a: '' })}>Add FAQ</Button>
+            <Button type="button" variant="secondary" size="sm" onClick={() => append({ q: '', a: '' })}>Add FAQ</Button>
           )}
         </div>
         {fields.map((field, index) => (
@@ -221,7 +221,7 @@ export function EventForm({ initialData, eventId, fests }: { initialData?: any, 
           {pending ? 'Saving...' : eventId ? 'Update Event' : 'Create Event'}
         </Button>
         {eventId && initialData?.status !== 'cancelled' && (
-          <Button type="button" variant="destructive" onClick={handleCancelEvent}>
+          <Button type="button" variant="danger" onClick={handleCancelEvent}>
             Cancel Event
           </Button>
         )}
@@ -229,3 +229,4 @@ export function EventForm({ initialData, eventId, fests }: { initialData?: any, 
     </form>
   );
 }
+

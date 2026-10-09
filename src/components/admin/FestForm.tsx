@@ -9,13 +9,13 @@ import { Input, Label, Select, Textarea } from '@/components/ui/forms';
 import { useRouter } from 'next/navigation';
 import { createFest, updateFest } from '@/server/admin';
 
-export function FestForm({ initialData, festId }: { initialData?: FestInput, festId?: string }) {
+export function FestForm({ initialData, festId }: { initialData?: any, festId?: string }) {
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
   
   const { register, handleSubmit, formState: { errors } } = useForm<FestInput>({
-    resolver: zodResolver(festSchema),
+    resolver: zodResolver(festSchema) as any,
     defaultValues: initialData || {
       organizationId: '',
       title: '',
@@ -52,7 +52,7 @@ export function FestForm({ initialData, festId }: { initialData?: FestInput, fes
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-surface p-6 rounded-xl border border-border">
+    <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-6 bg-surface p-6 rounded-xl border border-border">
       {error && <div className="p-4 bg-danger/10 text-danger rounded-lg">{error}</div>}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -131,3 +131,4 @@ export function FestForm({ initialData, festId }: { initialData?: FestInput, fes
     </form>
   );
 }
+

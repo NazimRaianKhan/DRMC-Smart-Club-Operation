@@ -6,6 +6,8 @@ import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { utcToDhaka } from '@/lib/timezone';
 
+export const instant = false;
+
 export default async function EditEventPage({ params }: { params: Promise<{ lang: string, id: string }> }) {
   const { lang, id } = await params;
   await requireRole(['organizer', 'admin']);
@@ -38,3 +40,4 @@ export default async function EditEventPage({ params }: { params: Promise<{ lang
     </div>
   );
 }
+

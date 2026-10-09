@@ -121,7 +121,7 @@ export default async function MyRegistrationsPage({ params }: Props) {
           <p className="font-mono text-2xl font-black tracking-widest text-accent">{reg.ticketCode}</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" asChild size="sm">
+          <Button variant="secondary" asChild size="sm">
             <Link href={`/${lang}/registrations/${reg.id}`}>Manage</Link>
           </Button>
           <Button asChild size="sm">

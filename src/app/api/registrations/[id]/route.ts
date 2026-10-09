@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireUser, assertSameOrigin, UnauthenticatedError, ForbiddenError } from '@/server/auth';
 import { editRegistration } from '@/server/registrations';
 import { registrationSchema } from '@/lib/validation/registration';
-import { checkRateLimit } from '@/server/ratelimit';
+import { registrationLimiter } from '@/server/ratelimit';
 
 export async function PATCH(request: Request, context: any) {
   try {
@@ -12,8 +12,8 @@ export async function PATCH(request: Request, context: any) {
     const session = await requireUser();
 
     // rate limit 20 per minute per user
-    const rateLimited = await checkRateLimit(`edit_reg_${session.sub}`, 20, 60);
-    if (!rateLimited) {
+    const { success } = await registrationLimiter.limit(`edit_reg_${session.sub}`);
+    if (!success) {
       return NextResponse.json({ ok: false, code: 'RATE_LIMITED', message: 'Too many requests' }, { status: 429 });
     }
 
@@ -46,7 +46,7 @@ export async function PATCH(request: Request, context: any) {
       'FORBIDDEN': 403
     };
 
-    const statusCode = statusMap[result.code] || 500;
+    const statusCode = statusMap[result.code as string] || 500;
     return NextResponse.json(result, { status: statusCode, headers: { 'Cache-Control': 'no-store' } });
 
   } catch (error: any) {

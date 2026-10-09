@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { desc } from 'drizzle-orm';
 import { requireRole } from '@/server/auth';
 
+export const instant = false;
+
 export default async function AdminFestsPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   await requireRole(['organizer', 'admin']);
@@ -45,7 +47,7 @@ export default async function AdminFestsPage({ params }: { params: Promise<{ lan
                 </td>
                 <td className="p-4">{fest.events.length}</td>
                 <td className="p-4 text-right">
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="secondary" size="sm" asChild>
                     <Link href={`/${lang}/admin/fests/${fest.id}/edit`}>Edit</Link>
                   </Button>
                 </td>
@@ -62,3 +64,4 @@ export default async function AdminFestsPage({ params }: { params: Promise<{ lan
     </div>
   );
 }
+

@@ -1,6 +1,8 @@
 import { requireRole } from '@/server/auth';
 import { FestForm } from '@/components/admin/FestForm';
 
+export const instant = false;
+
 export default async function NewFestPage({ params }: { params: Promise<{ lang: string }> }) {
   await params;
   await requireRole(['organizer', 'admin']);
@@ -12,3 +14,4 @@ export default async function NewFestPage({ params }: { params: Promise<{ lang: 
     </div>
   );
 }
+

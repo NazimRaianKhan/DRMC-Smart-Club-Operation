@@ -9,6 +9,8 @@ import { requireRole } from '@/server/auth';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { Input } from '@/components/ui/forms';
 
+export const instant = false;
+
 export default async function AdminEventsPage({ searchParams, params }: { searchParams: Promise<any>, params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   await requireRole(['organizer', 'admin']);
@@ -30,7 +32,7 @@ export default async function AdminEventsPage({ searchParams, params }: { search
   const [totalRes] = await db.select({ count: sql`count(*)`.mapWith(Number) })
     .from(events)
     .where(whereClause);
-  const total = totalRes.count;
+  const total = totalRes?.count ?? 0;
 
   const allEvents = await db.query.events.findMany({
     where: whereClause,
@@ -54,7 +56,7 @@ export default async function AdminEventsPage({ searchParams, params }: { search
           <Search className="absolute left-3 top-2.5 w-4 h-4 text-text-muted" />
           <Input name="q" defaultValue={q} placeholder="Search events..." className="pl-9" />
         </div>
-        <Button type="submit" variant="outline">Search</Button>
+        <Button type="submit" variant="secondary">Search</Button>
       </form>
 
       <div className="bg-surface border border-border rounded-xl overflow-hidden overflow-x-auto">
@@ -90,7 +92,7 @@ export default async function AdminEventsPage({ searchParams, params }: { search
                   </Badge>
                 </td>
                 <td className="p-4 text-right">
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="secondary" size="sm" asChild>
                     <Link href={`/${lang}/admin/events/${evt.id}/edit`}>Edit</Link>
                   </Button>
                 </td>
@@ -110,10 +112,10 @@ export default async function AdminEventsPage({ searchParams, params }: { search
           Showing {offset + 1} - {Math.min(offset + limit, total)} of {total}
         </p>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" disabled={page <= 1} asChild={page > 1}>
+          <Button variant="secondary" size="sm" disabled={page <= 1} asChild={page > 1}>
             <Link href={`?page=${page - 1}&q=${q}&fest=${filterFest}`}><ChevronLeft className="w-4 h-4 mr-1" /> Prev</Link>
           </Button>
-          <Button variant="outline" size="sm" disabled={offset + limit >= total} asChild={offset + limit < total}>
+          <Button variant="secondary" size="sm" disabled={offset + limit >= total} asChild={offset + limit < total}>
             <Link href={`?page=${page + 1}&q=${q}&fest=${filterFest}`}>Next <ChevronRight className="w-4 h-4 ml-1" /></Link>
           </Button>
         </div>
@@ -121,3 +123,4 @@ export default async function AdminEventsPage({ searchParams, params }: { search
     </div>
   );
 }
+

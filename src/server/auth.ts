@@ -75,8 +75,9 @@ export async function requireUser(): Promise<SessionPayload> {
   return { sub: user.id, role: user.role, name: user.fullName };
 }
 
-export async function requireRole(...roles: string[]) {
+export async function requireRole(rolesOrFirstRole: string[] | string, ...otherRoles: string[]) {
   const session = await requireUser();
+  const roles = Array.isArray(rolesOrFirstRole) ? rolesOrFirstRole : [rolesOrFirstRole, ...otherRoles];
   if (!roles.includes(session.role)) {
     throw new ForbiddenError();
   }

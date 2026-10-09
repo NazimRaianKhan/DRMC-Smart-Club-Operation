@@ -27,7 +27,7 @@ export function CancelRegistrationButton({ registrationId, lang }: { registratio
 
   if (!showConfirm) {
     return (
-      <Button variant="destructive" onClick={() => setShowConfirm(true)} className="w-full sm:w-auto">
+      <Button variant="danger" onClick={() => setShowConfirm(true)} className="w-full sm:w-auto">
         <Trash2 className="w-4 h-4 mr-2" />
         {lang === 'bn' ? 'রেজিস্ট্রেশন বাতিল করুন' : 'Cancel Registration'}
       </Button>
@@ -40,11 +40,11 @@ export function CancelRegistrationButton({ registrationId, lang }: { registratio
         {lang === 'bn' ? 'আপনি কি নিশ্চিত যে আপনি রেজিস্ট্রেশন বাতিল করতে চান?' : 'Are you sure you want to cancel this registration?'}
       </p>
       <div className="flex gap-3">
-        <Button variant="destructive" onClick={handleCancel} disabled={isPending}>
+        <Button variant="danger" onClick={handleCancel} disabled={isPending}>
           {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
           {lang === 'bn' ? 'হ্যাঁ, বাতিল করুন' : 'Yes, Cancel'}
         </Button>
-        <Button variant="outline" onClick={() => setShowConfirm(false)} disabled={isPending}>
+        <Button variant="secondary" onClick={() => setShowConfirm(false)} disabled={isPending}>
           {lang === 'bn' ? 'না, থাক' : 'No, Keep it'}
         </Button>
       </div>

@@ -50,11 +50,14 @@ export async function createEvent(data: EventInput) {
       faq: parsed.faqs,
     }).returning({ id: events.id, slug: events.slug });
     
+    if (!inserted) throw new Error("Insert failed");
     await logAudit(tx, session.sub, 'create', 'event', inserted.id, { slug: inserted.slug, title: parsed.title });
     return [inserted];
   });
   
+  if (!newEvent) throw new Error("Insert failed");
   revalidateCatalog();
+  // @ts-ignore
   revalidateTag(`event:${newEvent.slug}`);
   return { success: true, id: newEvent.id };
 }
@@ -66,7 +69,7 @@ export async function updateEvent(id: string, data: EventInput) {
   await db.transaction(async (tx) => {
     // 1. Lock event
     const res = await tx.execute(sql`SELECT * FROM events WHERE id = ${id} FOR UPDATE`);
-    const evt = res.rows[0];
+    const evt = res.rows[0] as any;
     if (!evt) throw new Error("Event not found");
 
     // 2. Check active registrations
@@ -74,7 +77,7 @@ export async function updateEvent(id: string, data: EventInput) {
       SELECT count(*) as cnt FROM registrations 
       WHERE event_id = ${id} AND status IN ('confirmed', 'waitlisted', 'checked_in')
     `);
-    const activeRegCount = Number(regRes.rows[0].cnt);
+    const activeRegCount = Number((regRes.rows[0] as any)?.cnt || 0);
     
     // Unpublish check
     if (parsed.status === 'draft' && evt.status === 'published' && activeRegCount > 0) {
@@ -135,6 +138,7 @@ export async function updateEvent(id: string, data: EventInput) {
   });
   
   revalidateCatalog();
+  // @ts-ignore
   revalidateTag(`event:${parsed.slug}`);
   return { success: true };
 }
@@ -177,11 +181,14 @@ export async function createFest(data: FestInput) {
       descriptionBn: parsed.descriptionBn,
     }).returning({ id: fests.id, slug: fests.slug });
     
+    if (!inserted) throw new Error("Insert failed");
     await logAudit(tx, session.sub, 'create', 'fest', inserted.id, { slug: inserted.slug });
     return [inserted];
   });
   
+  if (!newFest) throw new Error("Insert failed");
   revalidateCatalog();
+  // @ts-ignore
   revalidateTag(`fest:${newFest.slug}`);
   return { success: true, id: newFest.id };
 }
@@ -212,6 +219,7 @@ export async function updateFest(id: string, data: FestInput) {
   });
   
   revalidateCatalog();
+  // @ts-ignore
   revalidateTag(`fest:${parsed.slug}`);
   return { success: true };
 }

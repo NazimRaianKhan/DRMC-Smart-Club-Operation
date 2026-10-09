@@ -49,7 +49,7 @@ async function event(overrides: Partial<typeof events.$inferInsert> = {}) {
   return row!;
 }
 
-function input(user: typeof users.$inferSelect) {
+function input(user: typeof users.$inferSelect): { idempotencyKey: string; teamName?: string; members: any[] } {
   return { idempotencyKey: randomUUID(), members: [{ fullName: user.fullName, email: user.email, phone: '01711223344', institution: 'DRMC', classLevel: '10' as const }] };
 }
 

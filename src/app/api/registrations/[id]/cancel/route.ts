@@ -16,7 +16,9 @@ export async function POST(request: Request, context: any) {
     });
 
     if (result.ok) {
+      // @ts-ignore
       revalidateTag('events');
+      // @ts-ignore
       revalidateTag('fests');
       return NextResponse.json(result, { status: 200, headers: { 'Cache-Control': 'no-store' } });
     }
@@ -26,7 +28,7 @@ export async function POST(request: Request, context: any) {
       'INVALID_TRANSITION': 400,
     };
 
-    const statusCode = statusMap[result.code] || 500;
+    const statusCode = statusMap[result.code as string] || 500;
     return NextResponse.json(result, { status: statusCode, headers: { 'Cache-Control': 'no-store' } });
 
   } catch (error: any) {
